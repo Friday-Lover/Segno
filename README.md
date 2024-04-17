@@ -1,0 +1,2 @@
+# Segno
+Capstone Project
