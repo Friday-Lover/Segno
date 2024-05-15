@@ -1,18 +1,24 @@
 import 'package:flutter/material.dart';
-import '../Style/style.dart';
+import '../../Style/style.dart';
 import 'problem_generator_page.dart';
 import 'problem_custom_page.dart';
 
 class TextShowPage extends StatelessWidget {
   final String inputText;
 
-  const TextShowPage({required this.inputText});
+  const TextShowPage({super.key, required this.inputText});
+
+  get value => null;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('입력한 텍스트'),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60.0),
+        child: AppBar(
+          title: Text('입력한 텍스트', style: AppTheme.textTheme.displaySmall,),
+              //backgroundColor: AppTheme.mainColor,
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -21,7 +27,7 @@ class TextShowPage extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                '입력한 텍스트입니다:',
+                '입력한 텍스트입니다',
                 style: AppTheme.textTheme.headlineSmall,
               ),
               const SizedBox(height: 16.0),
@@ -54,7 +60,7 @@ class TextShowPage extends StatelessWidget {
                     onPressed: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => const ProblemCustomPage()),
+                        MaterialPageRoute(builder: (context) => TextShowPage(inputText: value)),
                       );
                     },
                   ),

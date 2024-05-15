@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import '../Style/style.dart';
-import 'text_input_page.dart';
+import 'package:segno/file_old/pages/text_input_page.dart';
+import '../../Style/style.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});

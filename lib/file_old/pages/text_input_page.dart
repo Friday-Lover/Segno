@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:segno/Style/style.dart';
 import 'text_show_page.dart';
 
 class TextInputPage extends StatefulWidget {
@@ -9,7 +10,7 @@ class TextInputPage extends StatefulWidget {
 class _TextInputPageState extends State<TextInputPage> {
   final TextEditingController _textController = TextEditingController();
 
-  late String value;
+  late String value ="";
 
   @override
   void dispose() {
@@ -20,8 +21,12 @@ class _TextInputPageState extends State<TextInputPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('텍스트 입력'),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60.0),
+        child: AppBar(
+          title:  Text('Segno 영어 문제 생성기',style: AppTheme.textTheme.displaySmall),
+          //backgroundColor: AppTheme.mainColor,
+        ),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -34,19 +39,19 @@ class _TextInputPageState extends State<TextInputPage> {
                 maxLines: null,
                 keyboardType: TextInputType.multiline,
                 decoration: const InputDecoration(
-                  hintText: '텍스트를 입력하세요',
+                  hintText: '문제 생성에 사용할 지문을 입력하세요',
                   border: OutlineInputBorder(),
                 ),
                 onChanged: (text) {
                   value = text;
                 },
               ),
-              const SizedBox(height: 16.0),
+              const SizedBox(height: 180.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   ElevatedButton(
-                    child: const Text('Scan'),
+                    child: const Text('Scan 하기'),
                     onPressed: () {},
                   ),
                   ElevatedButton(

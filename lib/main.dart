@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:segno/main/start_page.dart';
 import 'Style/style.dart';
-import 'pages/start_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -13,7 +13,8 @@ class MyApp extends StatelessWidget {
       title: 'Segno',
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      home: StartPage(),
+      debugShowCheckedModeBanner: false,
+      home: MainPage(folder: Folder(name: 'root folder')),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:segno/Style/style.dart';
 import 'main_page.dart';
 import 'exam_page.dart';
 
@@ -26,13 +27,15 @@ class _ExamCustomPageState extends State<ExamCustomPage> with SingleTickerProvid
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Exam Custom pages'),
+        title: Text('Exam Custom pages',style: AppTheme.textTheme.displaySmall,),
+        //backgroundColor: AppTheme.mainColor,
       ),
       body: Row(
         children: [
           Expanded(
             child: Container(
               color: Colors.grey[200],
+
             ),
           ),
           Expanded(

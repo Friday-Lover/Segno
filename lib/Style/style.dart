@@ -2,23 +2,24 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   static const String fontFamily = 'Pretendard';
+  static const Color mainColor = const Color(0xff6ad4dd);//#6AD4DD
 
   static const TextTheme textTheme = TextTheme(
 
     displayLarge: TextStyle(
       fontFamily: fontFamily,
-      fontWeight: FontWeight.w300,
+      fontWeight: FontWeight.w900,
       fontSize: 96,
     ),
     displayMedium: TextStyle(
       fontFamily: fontFamily,
-      fontWeight: FontWeight.w300,
+      fontWeight: FontWeight.w900,
       fontSize: 60,
     ),
     displaySmall: TextStyle(
       fontFamily: fontFamily,
-      fontWeight: FontWeight.w400,
-      fontSize: 48,
+      fontWeight: FontWeight.w900,
+      fontSize: 40,
     ),
     headlineMedium: TextStyle(
       fontFamily: fontFamily,
@@ -57,8 +58,8 @@ class AppTheme {
     ),
     labelLarge: TextStyle(
       fontFamily: fontFamily,
-      fontWeight: FontWeight.w500,
-      fontSize: 14,
+      fontWeight: FontWeight.w700,
+      fontSize: 20,
     ),
     bodySmall: TextStyle(
       fontFamily: fontFamily,

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:segno/Style/style.dart';
 import 'result_page.dart';
 
 class ExamPage extends StatelessWidget {
@@ -8,7 +9,8 @@ class ExamPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Exam pages'),
+        title: Text('Exam pages',style: AppTheme.textTheme.displaySmall,),
+        //backgroundColor: AppTheme.mainColor,
       ),
       body: Row(
         children: [
