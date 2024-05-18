@@ -1,24 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:segno/Style/style.dart';
 import 'package:segno/genarator/problem_generator_page.dart';
-import 'package:segno/genarator/problem_selection_page.dart';
 
-class TextInputPage extends StatefulWidget {
+class ProblemSelectionPage extends StatefulWidget {
+  final String value; // value 필드 추가
+
+  const ProblemSelectionPage(this.value, {super.key}); // 생성자에서 value 초기화
+
   @override
-  _TextInputPageState createState() => _TextInputPageState();
+  State<ProblemSelectionPage> createState() => _ProblemSelectionPageState();
 }
 
-class _TextInputPageState extends State<TextInputPage> {
-  final TextEditingController _textController = TextEditingController();
-
-  late String value ="";
-
-  @override
-  void dispose() {
-    _textController.dispose();
-    super.dispose();
-  }
-
+class _ProblemSelectionPageState extends State<ProblemSelectionPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -37,37 +30,11 @@ class _TextInputPageState extends State<TextInputPage> {
             children: [
               Container(
                 height: 450,
-                child: TextField(
-                  minLines: 20,//기기별 수정 필요
-                  controller: _textController,
-                  maxLines: null,
-                  keyboardType: TextInputType.multiline,
-                  decoration: const InputDecoration(
-                    hintText: '문제 생성에 사용할 지문을 입력하세요',
-                    border: OutlineInputBorder(),
-                  ),
-                  onChanged: (text) {
-                    value = text;
-                  },
-                ),
               ),
               const SizedBox(height: 100.0),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.mainColor,
-                        foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      textStyle: AppTheme.textTheme.labelLarge,
-                      fixedSize: Size(300,50)
-                    ),
-                    child: const Text('Scan 하기'),
-                    onPressed: () {},
-                  ),
                   ElevatedButton(
                     style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.mainColor,
@@ -78,14 +45,14 @@ class _TextInputPageState extends State<TextInputPage> {
                         textStyle: AppTheme.textTheme.labelLarge,
                         fixedSize: Size(300,50)
                     ),
-                    child: const Text('확인'),
+                    child: const Text('문제 만들기'),
                     onPressed: () {
                       Navigator.pop(context);
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                             builder: (context) =>
-                               ProblemSelectionPage(value)),
+                                ProblemGeneratorPage(widget.value)),
                       );
                     },
                   ),

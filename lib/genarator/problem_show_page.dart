@@ -76,6 +76,7 @@ class _ProblemShowPageState extends State<ProblemShowPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('파일이 저장되었습니다.')),
     );
+    Navigator.pop(context);
   }
 
   Future<String?> _showSaveDialog(BuildContext context) async {

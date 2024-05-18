@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "630827413060",
+    "project_id": "segno-a4dbc",
+    "storage_bucket": "segno-a4dbc.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:630827413060:android:495b4cad6dffd0a9975611",
+        "android_client_info": {
+          "package_name": "com.Friday_Lover.Segno"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAdeJjz2RokgsIjbjm8zf-_eLxfzNMozfE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
