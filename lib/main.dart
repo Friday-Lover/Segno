@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:segno/login/login_page.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:segno/main/start_page.dart';
-import 'package:segno/practice.dart';
 import 'firebase_options.dart';
 import 'style/style.dart';
 
@@ -29,9 +28,9 @@ class MyApp extends StatelessWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return Center(child: CircularProgressIndicator());
           } else if (snapshot.hasData) {
-            return Practice();
+            return MainPage(folder: Folder(name: 'root folder'));
           } else {
-            return Practice();
+            return LoginPage();
           }
         },
       ),
