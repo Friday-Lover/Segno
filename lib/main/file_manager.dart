@@ -2,7 +2,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:segno/answer/answer_main.dart';
 import 'package:segno/main/start_page.dart';
-import 'package:segno/style/style.dart';
 import 'package:segno/quiz/quiz_start.dart';
 
 

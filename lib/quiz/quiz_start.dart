@@ -12,9 +12,8 @@ class QuizStart extends StatefulWidget {
 }
 
 class _QuizStartState extends State<QuizStart> {
-  int quiz_total = 10;
+  int quizTotal = 10;
   int _currentIntValue = 10;
-  int _currentHorizontalIntValue = 10;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +27,7 @@ class _QuizStartState extends State<QuizStart> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "총 " + quiz_total.toString() + "문제",
+            "총 " + quizTotal.toString() + "문제",
             style: AppTheme.textTheme.displaySmall,
           ),
           Row(

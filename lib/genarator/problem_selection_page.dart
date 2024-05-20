@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:segno/style/style.dart';
-import 'package:segno/genarator/problem_generator_page.dart';
 
 class ProblemSelectionPage extends StatefulWidget {
   final String value; // value 필드 추가
