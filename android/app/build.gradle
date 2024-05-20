@@ -15,6 +15,22 @@ if (localPropertiesFile.exists()) {
     }
 }
 
+def flutterCompileSdkVersion = localProperties.getProperty('flutter.flutterCompileSdkVersion')
+if (flutterCompileSdkVersion == null) {
+    flutterCompileSdkVersion = '34'
+}
+
+def flutterMinSdkVersion = localProperties.getProperty('flutter.flutterMinSdkVersion')
+if (flutterMinSdkVersion == null) {
+    flutterMinSdkVersion = '31'
+}
+
+def flutterTargetSdkVersion = localProperties.getProperty('flutter.flutterTargetSdkVersion')
+if (flutterTargetSdkVersion == null) {
+    flutterTargetSdkVersion = '34'
+}
+
+
 def flutterVersionCode = localProperties.getProperty('flutter.versionCode')
 if (flutterVersionCode == null) {
     flutterVersionCode = '1'
@@ -27,8 +43,8 @@ if (flutterVersionName == null) {
 
 android {
     namespace "com.Friday_Lover.Segno"
-    compileSdk flutter.compileSdkVersion
-    ndkVersion "25.1.8937393"
+    compileSdk flutterCompileSdkVersion.toInteger()
+    ndkVersion "26.3.11579264"
 
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -48,8 +64,8 @@ android {
         applicationId "com.Friday_Lover.Segno"
         // You can update the following values to match your application needs.
         // For more information, see: https://docs.flutter.dev/deployment/android#reviewing-the-gradle-build-configuration.
-        minSdkVersion flutter.minSdkVersion
-        targetSdkVersion flutter.targetSdkVersion
+        minSdkVersion flutterMinSdkVersion.toInteger()
+        targetSdkVersion flutterTargetSdkVersion.toInteger()
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

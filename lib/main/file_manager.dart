@@ -1,11 +1,10 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:segno/answer/answer_main.dart';
 import 'package:segno/main/start_page.dart';
-import 'package:segno/Style/style.dart';
-import 'package:segno/genarator/text_input_page.dart';
-import 'dart:convert';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:segno/style/style.dart';
+import 'package:segno/quiz/quiz_start.dart';
 
-//분리하기 테스트중 .....
 
 class LayoutBuilderWidget extends StatefulWidget {
   final Folder currentFolder;
@@ -25,6 +24,43 @@ class LayoutBuilderWidget extends StatefulWidget {
   @override
   _LayoutBuilderWidgetState createState() => _LayoutBuilderWidgetState();
 }
+class Question {
+  final String text;
+  final List<String> choices;
+  final int answer;
+  final String comment;
+
+  Question(this.text, this.choices, this.answer, this.comment);
+}
+
+//for testing
+List<Question> questions = [
+  Question('문제 1 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
+      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 1, "해설 ㅁㅁㅁㅁ"),
+  Question('문제 2!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
+      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 2, "해설 ㅁㅁㅁㅁ"),
+  Question('문제 3 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
+      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 3, "해설 ㅁㅁㅁㅁ"),
+  Question('문제 4!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
+      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 4, "해설 ㅁㅁㅁㅁ"),
+  Question('문제 5 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
+      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 5, "해설 ㅁㅁㅁㅁ"),
+  Question('문제 6!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
+      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 2, "해설 ㅁㅁㅁㅁ"),
+  Question('문제 7 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
+      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 3, "해설 ㅁㅁㅁㅁ"),
+  Question('문제 8!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
+      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 3, "해설 ㅁㅁㅁㅁ"),
+  Question('문제 9 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
+      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 1, "해설 ㅁㅁㅁㅁ"),
+  Question('문제 10!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
+      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 2, "해설 ㅁㅁㅁㅁ"),
+  Question('문제 11 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
+      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 3, "해설 ㅁㅁㅁㅁ"),
+  Question('문제 12!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
+      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 3, "해설 ㅁㅁㅁㅁ"),
+];
+List<int> userAnswers = [1,2,3,4,5,1,1,1,1,1,1,1];
 
 class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
   @override
@@ -33,6 +69,28 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
       builder: (BuildContext context, BoxConstraints constraints) {
         return Column(
           children: [
+            //for testing
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => QuizStart()),
+                  );
+                },
+                child: Text("quiz test")),
+            ElevatedButton(
+                onPressed: () {
+                  FirebaseAuth.instance.signOut();
+                },
+                child: Text("logout")),
+            ElevatedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => QuizResultScreen(questions: questions, userAnswers: userAnswers, score: 6)),
+                  );
+                },
+                child: Text("commit")),
             Expanded(
               child: GridView.builder(
                 gridDelegate: SliverGridDelegateWithMaxCrossAxisExtent(
@@ -145,7 +203,8 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
                     if (oldIndex < newIndex) {
                       newIndex -= 1;
                     }
-                    final fileItem = widget.currentFolder.files.removeAt(oldIndex);
+                    final fileItem =
+                        widget.currentFolder.files.removeAt(oldIndex);
                     widget.currentFolder.files.insert(newIndex, fileItem);
                   });
                   widget.saveFoldersToPrefs(widget.folders);
@@ -174,7 +233,8 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
                                   title: Text('파일 삭제'),
                                   onTap: () {
                                     setState(() {
-                                      widget.currentFolder.files.removeAt(index);
+                                      widget.currentFolder.files
+                                          .removeAt(index);
                                     });
                                     widget.saveFoldersToPrefs(widget.folders);
                                     Navigator.pop(context, true);
@@ -241,7 +301,8 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
                                                     setState(() {
                                                       widget.currentFolder.files
                                                           .removeAt(index);
-                                                      folder.files.add(fileItem);
+                                                      folder.files
+                                                          .add(fileItem);
                                                     });
                                                     widget.saveFoldersToPrefs(
                                                         widget.folders);
