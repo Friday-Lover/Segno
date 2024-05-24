@@ -2,7 +2,8 @@ import 'package:flutter/material.dart';
 
 class AppTheme {
   static const String fontFamily = 'Pretendard';
-  static const Color mainColor = const Color(0xff6ad4dd);//#6AD4DD
+  static const Color mainColor = Color(0xff6ad4dd);//#6AD4DD
+  static const Color subColor = Color(0xff97e7e1);//#97E7E1
 
   static const TextTheme textTheme = TextTheme(
 

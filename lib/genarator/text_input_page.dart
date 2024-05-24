@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:segno/Style/style.dart';
-import 'package:segno/genarator/problem_generator_page.dart';
 import 'package:segno/genarator/problem_selection_page.dart';
 
 class TextInputPage extends StatefulWidget {
+  const TextInputPage({super.key});
+
   @override
   _TextInputPageState createState() => _TextInputPageState();
 }
@@ -28,6 +29,7 @@ class _TextInputPageState extends State<TextInputPage> {
           centerTitle: true,
           title:  Text('Segno',style: AppTheme.textTheme.displaySmall),
           backgroundColor: AppTheme.mainColor,
+          automaticallyImplyLeading: false,
         ),
       ),
       body: SingleChildScrollView(
@@ -35,7 +37,7 @@ class _TextInputPageState extends State<TextInputPage> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              Container(
+              SizedBox(
                 height: 450,
                 child: TextField(
                   minLines: 20,//기기별 수정 필요
@@ -63,7 +65,7 @@ class _TextInputPageState extends State<TextInputPage> {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       textStyle: AppTheme.textTheme.labelLarge,
-                      fixedSize: Size(300,50)
+                      fixedSize: const Size(300,50)
                     ),
                     child: const Text('Scan 하기'),
                     onPressed: () {},
@@ -76,7 +78,7 @@ class _TextInputPageState extends State<TextInputPage> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         textStyle: AppTheme.textTheme.labelLarge,
-                        fixedSize: Size(300,50)
+                        fixedSize: const Size(300,50)
                     ),
                     child: const Text('확인'),
                     onPressed: () {

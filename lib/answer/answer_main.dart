@@ -7,7 +7,7 @@ class QuizResultScreen extends StatelessWidget {
   final List<int> userAnswers;
   final int score;
 
-  QuizResultScreen({
+  const QuizResultScreen({super.key,
     required this.questions,
     required this.userAnswers,
     required this.score,
@@ -32,11 +32,11 @@ class QuizResultScreen extends StatelessWidget {
                   onPressed: () {
                     // Button action
                   },
-                  child: Text('메인화면'),
+                  child: const Text('메인화면'),
                 ),
                 Text(
                   '점수: $score/${questions.length}',
-                  style: TextStyle(fontSize: 18),
+                  style: const TextStyle(fontSize: 18),
                 ),
               ],
             ),
@@ -62,7 +62,7 @@ class QuizResultScreen extends StatelessWidget {
                                 : Colors.red,
                         child: Text(
                           '${index + 1}',
-                          style: TextStyle(color: Colors.white),
+                          style: const TextStyle(color: Colors.white),
                         ),
                       ),
                     ),
@@ -75,11 +75,11 @@ class QuizResultScreen extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
+                const Expanded(
                   child: Scrollbar(
                     child: SingleChildScrollView(
                       child: Padding(
-                        padding: const EdgeInsets.all(16.0),
+                        padding: EdgeInsets.all(16.0),
                         child: Text(
                           """
   import 'package:flutter/material.dart';
@@ -265,7 +265,7 @@ class __DecimalExampleState extends State<_DecimalExample> {
                           children: [
                             Container(
                               width: double.infinity,
-                              padding: EdgeInsets.all(16),
+                              padding: const EdgeInsets.all(16),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(
@@ -274,11 +274,11 @@ class __DecimalExampleState extends State<_DecimalExample> {
                                 ),
                               ),
                               child: Text(
-                                question.text,
-                                style: TextStyle(fontSize: 18),
+                                question.question,
+                                style: const TextStyle(fontSize: 18),
                               ),
                             ),
-                            SizedBox(height: 8),
+                            const SizedBox(height: 8),
                             ...question.choices.map((choice) {
                               final isCorrect = question.answer ==
                                   question.choices.indexOf(choice);
@@ -301,7 +301,7 @@ class __DecimalExampleState extends State<_DecimalExample> {
                                               ? Colors.red
                                               : Colors.grey,
                                     ),
-                                    SizedBox(width: 8),
+                                    const SizedBox(width: 8),
                                     Text(
                                       choice,
                                       style: TextStyle(
@@ -317,8 +317,8 @@ class __DecimalExampleState extends State<_DecimalExample> {
                                   ],
                                 ),
                               );
-                            }).toList(),
-                            SizedBox(height: 16),
+                            }),
+                            const SizedBox(height: 16),
                           ],
                         );
                       },

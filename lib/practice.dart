@@ -17,7 +17,7 @@ class Practice extends StatelessWidget {
       ),
       body:
         Column(
-          children: [
+          children: const [
             //앱에서 보이는 것은 여기에 (column 제거하고 다른거 써도 무방)
             Text("연습장"),
           ],

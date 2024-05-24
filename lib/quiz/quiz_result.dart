@@ -1,26 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:segno/main/file_manager.dart';
 
 class QuizResult extends StatelessWidget {
-  final List<Question> questions;
-  final List<int?> selectedChoices;
+  final String examName;
+  final int correctAnswers;
+  final int totalQuestions;
 
-  QuizResult({required this.questions, required this.selectedChoices});
+  const QuizResult({
+    super.key,
+    required this.examName,
+    required this.correctAnswers,
+    required this.totalQuestions,
+  });
 
   @override
   Widget build(BuildContext context) {
-    int correctAnswers = 0;
-    int totalQuestions = questions.length;
-
-    for (int i = 0; i < questions.length; i++) {
-      if (selectedChoices[i] != null && selectedChoices[i]! + 1 == questions[i].answer) {
-        correctAnswers++;
-      }
-    }
-
     return Scaffold(
       appBar: AppBar(
-        title: Text('시험 결과'),
+        title: const Text('시험 결과'),
+        automaticallyImplyLeading: false,
       ),
       body: Center(
         child: Column(
@@ -28,21 +25,21 @@ class QuizResult extends StatelessWidget {
           children: [
             Text(
               '맞은 문제: $correctAnswers / 전체 문제: $totalQuestions',
-              style: TextStyle(fontSize: 24),
+              style: const TextStyle(fontSize: 24),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
+                // 결과 이미지 저장 기능 구현
               },
-              child: Text('결과 이미지로 저장하기'),
+              child: const Text('결과 이미지로 저장하기'),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             ElevatedButton(
               onPressed: () {
-                Navigator.pop(context);
+                // 결과 확인 화면으로 이동
               },
-              child: Text('결과 확인'),
+              child: const Text('결과 확인'),
             ),
           ],
         ),

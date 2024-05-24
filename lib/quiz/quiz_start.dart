@@ -1,11 +1,21 @@
+// quiz_start.dart
 import 'package:flutter/material.dart';
 import 'package:numberpicker/numberpicker.dart';
 import 'package:segno/quiz/quiz.dart';
-
+import '../db/file_db.dart';
 import '../style/style.dart';
 
 class QuizStart extends StatefulWidget {
-  const QuizStart({super.key});
+  final String examName;
+  final String passage;
+  final List<QuestionFile> questions;
+
+  const QuizStart({
+    super.key,
+    required this.examName,
+    required this.passage,
+    required this.questions,
+  });
 
   @override
   State<QuizStart> createState() => _QuizStartState();
@@ -22,12 +32,13 @@ class _QuizStartState extends State<QuizStart> {
         centerTitle: true,
         title: Text('Segno', style: AppTheme.textTheme.displaySmall),
         backgroundColor: AppTheme.mainColor,
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
-            "총 " + quizTotal.toString() + "문제",
+            "총 $quizTotal문제",
             style: AppTheme.textTheme.displaySmall,
           ),
           Row(
@@ -59,12 +70,19 @@ class _QuizStartState extends State<QuizStart> {
                   borderRadius: BorderRadius.circular(10),
                 ),
                 textStyle: AppTheme.textTheme.labelLarge,
-                fixedSize: Size(300, 50)),
+                fixedSize: const Size(300, 50)),
             child: const Text('시험 시작'),
             onPressed: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => QuizScreen(timerValue: _currentIntValue,)),
+                MaterialPageRoute(
+                  builder: (context) => QuizScreen(
+                    timerValue: _currentIntValue,
+                    passage: widget.passage,
+                    questions: widget.questions,
+                    examName: widget.examName,
+                  ),
+                ),
               );
             },
           ),

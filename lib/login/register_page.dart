@@ -1,36 +1,37 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:segno/login/register_page.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:modal_progress_hud_nsn/modal_progress_hud_nsn.dart';
+import '../main/start_page.dart';
 
-class LoginPage extends StatelessWidget {
-  const LoginPage({super.key});
-
+class RegisterPage extends StatelessWidget {
+  const RegisterPage({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Login'),
+        title: const Text('Register'),
       ),
-      body:  const LoginForm(),
+      body: const RegisterForm(),
     );
   }
 }
 
-class LoginForm extends StatefulWidget {
-  const LoginForm({super.key});
+class RegisterForm extends StatefulWidget {
+  const RegisterForm({super.key});
 
   @override
-  State<LoginForm> createState() => _LoginFormState();
+  State<RegisterForm> createState() => _RegisterFormState();
 }
 
-class _LoginFormState extends State<LoginForm> {
+class _RegisterFormState extends State<RegisterForm> {
   final _authentication = FirebaseAuth.instance;
   final _formKey = GlobalKey<FormState>();
   String email = '';
-  String password = '';
   bool saving = false;
+  String password = '';
+  String userName = '';
 
   void showErrorSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
@@ -70,27 +71,47 @@ class _LoginFormState extends State<LoginForm> {
                 const SizedBox(
                   height: 20,
                 ),
+                TextFormField(
+                  decoration: const InputDecoration(labelText: 'User Name'),
+                  onChanged: (value) {
+                    userName = value;
+                  },
+                ),
+                const SizedBox(
+                  height: 20,
+                ),
                 ElevatedButton(
                     onPressed: () async {
                       try {
                         setState(() {
                           saving = true;
                         });
-                        final currentUser =
-                        await _authentication.signInWithEmailAndPassword(
-                            email: email, password: password);
-                        if (currentUser.user != null) {
+                        final newUser = await _authentication
+                            .createUserWithEmailAndPassword(
+                                email: email, password: password);
+                        if (newUser.user != null) {
                           _formKey.currentState!.reset();
+                          if (!mounted) return;
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => MainPage(
+                                      )));
+                          setState(() {
+                            saving = false;
+                          });
                         }
                       } on FirebaseAuthException catch (e) {
-                        if (e.code == 'user-not-found') {
-                          showErrorSnackBar('No user found for that email.');
-                        } else if (e.code == 'wrong-password') {
+                        if (e.code == 'weak-password') {
                           showErrorSnackBar(
-                              'Wrong password provided for that user.');
+                              'The password provided is too weak.');
+                        } else if (e.code == 'email-already-in-use') {
+                          showErrorSnackBar(
+                              'The account already exists for that email.');
                         }
                       } catch (e) {
-                        showErrorSnackBar('Failed to login. Please try again.');
+                        showErrorSnackBar(
+                            'Failed to create an account. Please try again.');
                       } finally {
                         setState(() {
                           saving = false;
@@ -101,15 +122,12 @@ class _LoginFormState extends State<LoginForm> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    const Text('If you did not register'),
+                    const Text('If you already registered'),
                     TextButton(
                         onPressed: () {
-                          Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                  builder: (context) => const RegisterPage()));
+                          Navigator.pop(context);
                         },
-                        child: const Text('Register your email'))
+                        child: const Text('log in with your email'))
                   ],
                 )
               ],
@@ -118,4 +136,3 @@ class _LoginFormState extends State<LoginForm> {
     );
   }
 }
-

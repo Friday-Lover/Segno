@@ -1,14 +1,23 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
+import 'package:isar/isar.dart';
+import 'package:segno/db/file_db.dart';
 import 'package:segno/main/file_manager.dart';
 import 'package:segno/quiz/quiz_result.dart';
 import '../style/style.dart';
 
 class QuizScreen extends StatefulWidget {
   final int timerValue;
+  final String passage;
+  final String examName;
+  final List<QuestionFile> questions;
 
-  const QuizScreen({super.key, required this.timerValue});
+  const QuizScreen({
+    super.key,
+    required this.timerValue,
+    required this.passage,
+    required this.questions, required this.examName,
+  });
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
@@ -16,202 +25,8 @@ class QuizScreen extends StatefulWidget {
 
 class _QuizScreenState extends State<QuizScreen> {
   int currentQuestionIndex = 0;
-  int timer = 0; // 타이머 초기값 (분 단위)
+  int timer = 0;
   late Timer _timer;
-
-  //for testing
-  String text = """
-  import 'package:flutter/material.dart';
-import 'package:numberpicker/numberpicker.dart';
-
-void main() {
-  runApp(new ExampleApp());
-}
-
-class ExampleApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'NumberPicker Example',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  @override
-  _MyHomePageState createState() => new _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          bottom: TabBar(
-            tabs: [
-              Tab(text: 'Integer'),
-              Tab(text: 'Decimal'),
-            ],
-          ),
-          title: Text('Numberpicker example'),
-        ),
-        body: TabBarView(
-          children: [
-            _IntegerExample(),
-            _DecimalExample(),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _IntegerExample extends StatefulWidget {
-  @override
-  __IntegerExampleState createState() => __IntegerExampleState();
-}
-
-class __IntegerExampleState extends State<_IntegerExample> {
-  int _currentIntValue = 10;
-  int _currentHorizontalIntValue = 10;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        SizedBox(height: 16),
-        Text('Default', style: Theme.of(context).textTheme.headline6),
-        NumberPicker(
-          value: _currentIntValue,
-          minValue: 0,
-          maxValue: 100,
-          step: 10,
-          haptics: true,
-          onChanged: (value) => setState(() => _currentIntValue = value),
-        ),
-        SizedBox(height: 32),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              icon: Icon(Icons.remove),
-              onPressed: () => setState(() {
-                final newValue = _currentIntValue - 10;
-                _currentIntValue = newValue.clamp(0, 100);
-              }),
-            ),
-            Text('Current int value: '),
-            IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () => setState(() {
-                final newValue = _currentIntValue + 20;
-                _currentIntValue = newValue.clamp(0, 100);
-              }),
-            ),
-          ],
-        ),
-        Divider(color: Colors.grey, height: 32),
-        SizedBox(height: 16),
-        Text('Horizontal', style: Theme.of(context).textTheme.headline6),
-        NumberPicker(
-          value: _currentHorizontalIntValue,
-          minValue: 0,
-          maxValue: 100,
-          step: 10,
-          itemHeight: 100,
-          axis: Axis.horizontal,
-          onChanged: (value) =>
-              setState(() => _currentHorizontalIntValue = value),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.black26),
-          ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              icon: Icon(Icons.remove),
-              onPressed: () => setState(() {
-                final newValue = _currentHorizontalIntValue - 10;
-                _currentHorizontalIntValue = newValue.clamp(0, 100);
-              }),
-            ),
-            Text('Current horizontal int value: '),
-            IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () => setState(() {
-                final newValue = _currentHorizontalIntValue + 20;
-                _currentHorizontalIntValue = newValue.clamp(0, 100);
-              }),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _DecimalExample extends StatefulWidget {
-  @override
-  __DecimalExampleState createState() => __DecimalExampleState();
-}
-
-class __DecimalExampleState extends State<_DecimalExample> {
-  double _currentDoubleValue = 3.0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        SizedBox(height: 16),
-        Text('Decimal', style: Theme.of(context).textTheme.headline6),
-        DecimalNumberPicker(
-          value: _currentDoubleValue,
-          minValue: 0,
-          maxValue: 10,
-          decimalPlaces: 2,
-          onChanged: (value) => setState(() => _currentDoubleValue = value),
-        ),
-        SizedBox(height: 32),
-      ],
-    );
-  }
-}
-  """;
-
-  List<Question> questions = [
-    Question('문제 1 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-        ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 1, "해설 ㅁㅁㅁㅁ"),
-    Question('문제 2!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-        ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 2, "해설 ㅁㅁㅁㅁ"),
-    Question('문제 3 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-        ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 3, "해설 ㅁㅁㅁㅁ"),
-    Question('문제 4!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-        ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 4, "해설 ㅁㅁㅁㅁ"),
-    Question('문제 5 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-        ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 5, "해설 ㅁㅁㅁㅁ"),
-    Question('문제 6!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-        ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 2, "해설 ㅁㅁㅁㅁ"),
-    Question('문제 7 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-        ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 3, "해설 ㅁㅁㅁㅁ"),
-    Question('문제 8!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-        ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 3, "해설 ㅁㅁㅁㅁ"),
-    Question('문제 9 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-        ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 1, "해설 ㅁㅁㅁㅁ"),
-    Question('문제 10!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-        ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 2, "해설 ㅁㅁㅁㅁ"),
-    Question('문제 11 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-        ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 3, "해설 ㅁㅁㅁㅁ"),
-    Question('문제 12!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-        ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 3, "해설 ㅁㅁㅁㅁ"),
-  ];
   List<int?> selectedChoices = [];
 
   void showTextPopup(BuildContext context) {
@@ -225,15 +40,15 @@ class __DecimalExampleState extends State<_DecimalExample> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  text,
-                  style: TextStyle(fontSize: 18),
+                  widget.passage,
+                  style: const TextStyle(fontSize: 18),
                 ),
               ],
             ),
           ),
           actions: [
             TextButton(
-              child: Text('창닫기'),
+              child: const Text('창닫기'),
               onPressed: () {
                 Navigator.of(context).pop();
               },
@@ -248,16 +63,39 @@ class __DecimalExampleState extends State<_DecimalExample> {
     setState(() {
       if (currentQuestionIndex > 0) {
         currentQuestionIndex--;
+      } else {
+        // 첫 번째 문제일 경우 아무 동작 하지 않음
+        return;
       }
     });
   }
 
   void goToNextQuestion() {
     setState(() {
-      if (currentQuestionIndex < questions.length - 1) {
+      if (currentQuestionIndex < widget.questions.length - 1) {
         currentQuestionIndex++;
+      } else {
+        // 마지막 문제일 경우 팝업 표시
+        showLastQuestionPopup();
       }
     });
+  }
+
+  void showLastQuestionPopup() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        Future.delayed(const Duration(seconds: 1), () {
+          if (mounted) {
+            Navigator.of(context).pop();
+          }
+        });
+
+        return const AlertDialog(
+          content: Text("마지막 문제입니다."),
+        );
+      },
+    );
   }
 
   void selectChoice(int questionIndex, int choiceIndex) {
@@ -285,16 +123,45 @@ class __DecimalExampleState extends State<_DecimalExample> {
     return '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
   }
 
-  void endQuiz() {
+  void endQuiz() async {
+    int correctAnswers = 0;
+    int totalQuestions = widget.questions.length;
+
+    for (int i = 0; i < widget.questions.length; i++) {
+      if (selectedChoices[i] != null && selectedChoices[i]! + 1 == widget.questions[i].answer) {
+        correctAnswers++;
+      }
+    }
+
+    await saveQuizResult(correctAnswers, totalQuestions);
     Navigator.push(
       context,
       MaterialPageRoute(
         builder: (context) => QuizResult(
-          questions: questions,
-          selectedChoices: selectedChoices,
+          examName: widget.examName,
+          correctAnswers: correctAnswers,
+          totalQuestions: totalQuestions,
         ),
       ),
     );
+  }
+
+  Future<void> saveQuizResult(int correctAnswers, int totalQuestions) async {
+    final examFile = await isar.examFiles.filter().examNameEqualTo(widget.examName).findFirst();
+
+    if (examFile != null) {
+      final examResult = ExamResult(
+        examName: widget.examName,
+        selectedChoices: selectedChoices.map((choice) => choice ?? -1).toList(),
+        correctNumber: correctAnswers,
+        totalNumber: totalQuestions,
+      );
+
+      await isar.writeTxn(() async {
+        await isar.examResults.put(examResult);
+        examFile.examResults.add(examResult);
+      });
+    }
   }
 
   @override
@@ -313,13 +180,14 @@ class __DecimalExampleState extends State<_DecimalExample> {
 
   @override
   Widget build(BuildContext context) {
-    Question currentQuestion = questions[currentQuestionIndex];
+    QuestionFile currentQuestion = widget.questions[currentQuestionIndex];
 
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: Text('Segno', style: AppTheme.textTheme.displaySmall),
         backgroundColor: AppTheme.mainColor,
+        automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
         child: Center(
@@ -334,7 +202,7 @@ class __DecimalExampleState extends State<_DecimalExample> {
                   children: [
                     Text(
                       getTimerText(),
-                      style: TextStyle(fontSize: 24),
+                      style: const TextStyle(fontSize: 24),
                     ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -344,7 +212,7 @@ class __DecimalExampleState extends State<_DecimalExample> {
                           borderRadius: BorderRadius.circular(10),
                         ),
                         textStyle: AppTheme.textTheme.displaySmall,
-                        fixedSize: Size(250, 70),
+                        fixedSize: const Size(250, 70),
                       ),
                       child: const Text('시험 종료'),
                       onPressed: () {
@@ -362,7 +230,7 @@ class __DecimalExampleState extends State<_DecimalExample> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         IconButton(
-                          icon: Icon(Icons.arrow_left),
+                          icon: const Icon(Icons.arrow_left),
                           onPressed: goToPreviousQuestion,
                         ),
                         Column(
@@ -371,7 +239,7 @@ class __DecimalExampleState extends State<_DecimalExample> {
                             Padding(
                               padding: const EdgeInsets.only(right: 30, bottom: 20),
                               child: TextButton(
-                                child: Text("본문보기"),
+                                child: const Text("본문보기"),
                                 onPressed: () {
                                   showTextPopup(context);
                                 },
@@ -390,12 +258,12 @@ class __DecimalExampleState extends State<_DecimalExample> {
                               ),
                               child: Center(
                                 child: Text(
-                                  currentQuestion.text,
-                                  style: TextStyle(fontSize: 24),
+                                  currentQuestion.question,
+                                  style: const TextStyle(fontSize: 24),
                                 ),
                               ),
                             ),
-                            SizedBox(height: 15),
+                            const SizedBox(height: 15),
                             Column(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: List.generate(
@@ -427,7 +295,7 @@ class __DecimalExampleState extends State<_DecimalExample> {
                           ],
                         ),
                         IconButton(
-                          icon: Icon(Icons.arrow_right),
+                          icon: const Icon(Icons.arrow_right),
                           onPressed: goToNextQuestion,
                         ),
                       ],
@@ -439,7 +307,7 @@ class __DecimalExampleState extends State<_DecimalExample> {
           ),
         ),
       ),
-      bottomNavigationBar: Row(
+      bottomNavigationBar: const Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(Icons.circle, color: Colors.blue),

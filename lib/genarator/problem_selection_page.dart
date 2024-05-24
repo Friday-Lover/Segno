@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:segno/genarator/problem_generator_page.dart';
 import 'package:segno/style/style.dart';
 
 class ProblemSelectionPage extends StatefulWidget {
@@ -15,7 +16,6 @@ class _ProblemSelectionPageState extends State<ProblemSelectionPage> {
   Map<String, int> problemCounts = {
     '제목': 0,
     '순서': 0,
-    '어법': 0,
     '어휘': 0,
     '요약': 0,
     '내용 일치': 0,
@@ -46,112 +46,217 @@ class _ProblemSelectionPageState extends State<ProblemSelectionPage> {
   }
 
   void navigateToNextPage() {
-    List<Map<String, dynamic>> options = [];
+    List<Map<String, dynamic>> questionTypes = [];
     for (String type in selectedTypes) {
-      options.add({
-        'type': type,
-        'count': problemCounts[type],
+      questionTypes.add({
+        'string': type,
+        'int': problemCounts[type],
       });
     }
-//  Navigate to the next page with the selected options
+
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProblemGeneratorPage(
+          passage: widget.value,
+          questionTypes: questionTypes,
+        ),
+      ),
+    );
   }
+
+//  Navigate to the next page with the selected options
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Segno'),
+        title: Text('Segno', style: AppTheme.textTheme.displaySmall),
+        centerTitle: true,
         backgroundColor: AppTheme.mainColor,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context);
-          },
-        ),
+        automaticallyImplyLeading: false,
       ),
-      body: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    padding: EdgeInsets.all(16.0),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey),
-                      borderRadius: BorderRadius.circular(8.0),
-                    ),
-                    child: Column(
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('즐겨찾기'),
-                            Text('문제 수: $totalProblems'),
-                          ],
-                        ),
-                        SizedBox(height: 16.0),
-                        Wrap(
-                          spacing: 8.0,
-                          runSpacing: 8.0,
-                          children: selectedTypes.map((type) {
-                            return Chip(
-                              label: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(type),
-                                  SizedBox(width: 4.0),
-                                  Text('${problemCounts[type]}'),
-                                ],
-                              ),
-                            );
-                          }).toList(),
-                        ),
-                      ],
-                    ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.9),
+            child: IconButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              icon: Icon(Icons.arrow_back),
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10, bottom: 30),
+            child: Center(
+              child: Container(
+                width: MediaQuery.of(context).size.width * 0.85,
+                height: MediaQuery.of(context).size.height * 0.6,
+                decoration: BoxDecoration(
+                  border: Border.all(
+                    color: AppTheme.mainColor,
+                    style: BorderStyle.solid,
+                    width: 3,
                   ),
                 ),
-                SizedBox(width: 16.0),
-                Column(
-                  children: problemCounts.keys.map((type) {
-                    return Row(
-                      children: [
-                        Radio(
-                          value: type,
-                          groupValue: selectedTypes.contains(type) ? type : '',
-                          onChanged: (_) {
-                            toggleProblemType(type);
-                          },
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      flex: 6,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: AppTheme.mainColor,
+                            style: BorderStyle.solid,
+                            width: 3,
+                          ),
                         ),
-                        Text(type),
-                        SizedBox(width: 8.0),
-                        selectedTypes.contains(type)
-                            ? NumberPicker(
-                          value: problemCounts[type]!,
-                          minValue: 1,
-                          maxValue: 10,
-                          onChanged: (value) {
-                            updateProblemCount(type, value);
-                          },
-                        )
-                            : SizedBox(),
-                      ],
-                    );
-                  }).toList(),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              flex: 4,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: AppTheme.mainColor,
+                                    style: BorderStyle.solid,
+                                    width: 3,
+                                  ),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 6,
+                              child: ListView(
+                                children: selectedTypes.map((type) {
+                                  return Chip(
+                                    shape: ContinuousRectangleBorder(
+                                      side: BorderSide(
+                                        color: AppTheme.mainColor,
+                                        width: 1
+                                      )
+                                    ),
+                                    onDeleted: () {
+                                      setState(() {
+                                        selectedTypes.remove(type);
+                                        totalProblems -= problemCounts[type]!;
+                                        problemCounts[type] = 0;
+                                      });
+                                    },
+                                    label: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Container(
+                                          height: 50,
+                                          width: 200,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: AppTheme.mainColor,
+                                              style: BorderStyle.solid,
+                                              width: 3,
+                                            ),
+                                          ),
+                                          child: Center(child: Text(type)),
+                                        ),
+                                        const SizedBox(width: 8.0),
+                                        Text('${problemCounts[type]}'),
+                                        Text('문제'),
+                                      ],
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      flex: 2,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: AppTheme.mainColor,
+                            style: BorderStyle.solid,
+                            width: 3,
+                          ),
+                        ),
+                        child: Column(
+                          children: [
+                            Expanded(
+                              flex: 3,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: AppTheme.mainColor,
+                                    style: BorderStyle.solid,
+                                    width: 3,
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Text('문제 수: $totalProblems'),
+                                ),
+                              ),
+                            ),
+                            Expanded(
+                              flex: 7,
+                              child: ListView(
+                                children: problemCounts.keys.map((type) {
+                                  return Row(
+                                    children: [
+                                      Radio(
+                                        value: type,
+                                        groupValue: selectedTypes.contains(type) ? type : '',
+                                        onChanged: (_) {
+                                          toggleProblemType(type);
+                                        },
+                                      ),
+                                      Text(type),
+                                      const SizedBox(width: 8.0),
+                                      selectedTypes.contains(type)
+                                          ? NumberPicker(
+                                        value: problemCounts[type]!,
+                                        minValue: 1,
+                                        maxValue: 10,
+                                        onChanged: (value) {
+                                          updateProblemCount(type, value);
+                                        },
+                                      )
+                                          : const SizedBox(),
+                                    ],
+                                  );
+                                }).toList(),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-            SizedBox(height: 16.0),
-            Center(
-              child: ElevatedButton(
-                onPressed: navigateToNextPage,
-                child: Text('문제 만들기'),
               ),
             ),
-          ],
-        ),
+          ),
+          const SizedBox(height: 20),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppTheme.mainColor,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+              textStyle: AppTheme.textTheme.labelLarge,
+              fixedSize: Size(200, 50),
+            ),
+            child: const Text('문제 만들기'),
+            onPressed: () {
+              navigateToNextPage();
+            },
+          ),
+        ],
       ),
     );
   }
@@ -163,7 +268,8 @@ class NumberPicker extends StatefulWidget {
   final int maxValue;
   final ValueChanged<int> onChanged;
 
-  NumberPicker({
+  const NumberPicker({
+    super.key,
     required this.value,
     required this.minValue,
     required this.maxValue,
@@ -206,12 +312,12 @@ class _NumberPickerState extends State<NumberPicker> {
     return Row(
       children: [
         IconButton(
-          icon: Icon(Icons.remove),
+          icon: const Icon(Icons.remove),
           onPressed: _decrement,
         ),
         Text('$_currentValue'),
         IconButton(
-          icon: Icon(Icons.add),
+          icon: const Icon(Icons.add),
           onPressed: _increment,
         ),
       ],
