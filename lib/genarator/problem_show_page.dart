@@ -9,28 +9,16 @@ final getIt = GetIt.instance;
 final isar = getIt.get<Isar>();
 
 class ProblemShowPage extends StatefulWidget {
-  final String passage; // value 필드 추가
+  final String passage;
+  final List<QuestionFile> questions;
 
-  const ProblemShowPage(this.passage, {super.key});
+  const ProblemShowPage(this.passage, {super.key, required this.questions});
 
   @override
   _ProblemShowPageState createState() => _ProblemShowPageState();
 }
 
 class _ProblemShowPageState extends State<ProblemShowPage> {
-  List<QuestionFile> questionTest = [
-    QuestionFile(
-        question: '문제 1 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-        choices: ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'],
-        answer: 1,
-        comment: "해설 내용 ~~~"),
-    QuestionFile(
-        question: '문제 2 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-        choices: ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'],
-        answer: 1,
-        comment: "해설 내용 ~~~~"),
-  ];
-
   void copyQuestion(List<QuestionFile> questions) {
     String copiedText = '';
 
@@ -46,7 +34,7 @@ class _ProblemShowPageState extends State<ProblemShowPage> {
     }
 
     copiedText +=
-        '정답: ${questions.map((question) => question.answer).join(', ')}';
+    '정답: ${questions.map((question) => question.answer).join(', ')}';
 
     Clipboard.setData(ClipboardData(text: copiedText));
     ScaffoldMessenger.of(context).showSnackBar(
@@ -68,7 +56,8 @@ class _ProblemShowPageState extends State<ProblemShowPage> {
     if (examName.isEmpty) return;
 
     // 파일 이름 중복 확인
-    final existingExamFile = await isar.examFiles.filter().examNameEqualTo(examName).findFirst();
+    final existingExamFile =
+    await isar.examFiles.filter().examNameEqualTo(examName).findFirst();
     if (existingExamFile != null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('이미 존재하는 파일 이름입니다.')),
@@ -143,11 +132,6 @@ class _ProblemShowPageState extends State<ProblemShowPage> {
   }
 
   @override
-  void initState() {
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
@@ -159,42 +143,63 @@ class _ProblemShowPageState extends State<ProblemShowPage> {
         ),
         automaticallyImplyLeading: false,
       ),
-      body: ListView.builder(
-        itemCount: questionTest.length,
-        itemBuilder: (context, index) {
-          final question = questionTest[index];
-          return Container(
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            decoration: BoxDecoration(
-              border: Border.all(color: AppTheme.mainColor),
-              borderRadius: BorderRadius.circular(8),
+      body: Column(
+        children: [
+          Expanded(
+            flex: 1,
+            child: Padding(
+              padding: EdgeInsets.only(
+                  right: MediaQuery.of(context).size.width * 0.9),
+              child: IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: Image.asset("assets/images/back-arrow.png"),
+              ),
             ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      question.question,
-                      style: AppTheme.textTheme.bodyLarge,
-                    ),
+          ),
+          Expanded(
+            flex: 8,
+            child: ListView.builder(
+              itemCount: widget.questions.length,
+              itemBuilder: (context, index) {
+                final question = widget.questions[index];
+                return Container(
+                  margin:
+                  const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  decoration: BoxDecoration(
+                    border: Border.all(color: AppTheme.mainColor),
+                    borderRadius: BorderRadius.circular(8),
                   ),
-                ),
-                Column(
-                  children: question.choices.map((choice) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Text(
-                        choice,
-                        style: AppTheme.textTheme.bodyLarge,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Text(
+                            question.question,
+                            style: AppTheme.textTheme.bodyLarge,
+                          ),
+                        ),
                       ),
-                    );
-                  }).toList(),
-                ),
-              ],
+                      Column(
+                        children: question.choices.map((choice) {
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 4),
+                            child: Text(
+                              choice,
+                              style: AppTheme.textTheme.bodyLarge,
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
-          );
-        },
+          ),
+        ],
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(15.0),
@@ -212,7 +217,7 @@ class _ProblemShowPageState extends State<ProblemShowPage> {
                   fixedSize: const Size(300, 50)),
               child: const Text('문제텍스트로 복사'),
               onPressed: () {
-                copyQuestion(questionTest);
+                copyQuestion(widget.questions);
               },
             ),
             ElevatedButton(
@@ -226,7 +231,7 @@ class _ProblemShowPageState extends State<ProblemShowPage> {
                   fixedSize: const Size(300, 50)),
               child: const Text('문제 저장'),
               onPressed: () {
-                saveQuestionToFile(questionTest);
+                saveQuestionToFile(widget.questions);
               },
             ),
           ],

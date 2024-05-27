@@ -1,25 +1,54 @@
 import 'package:flutter/material.dart';
-import 'package:segno/main/file_manager.dart';
+import 'package:get_it/get_it.dart';
+import 'package:isar/isar.dart';
+import 'package:segno/db/file_db.dart';
 import '../style/style.dart';
 
-class QuizResultScreen extends StatelessWidget {
-  final List<Question> questions;
-  final List<int> userAnswers;
-  final int score;
+class QuizResultScreen extends StatefulWidget {
+  final String examName;
+  final ExamResult examResult;
 
-  const QuizResultScreen({super.key,
-    required this.questions,
-    required this.userAnswers,
-    required this.score,
+  const QuizResultScreen({
+    super.key,
+    required this.examName,
+    required this.examResult,
   });
 
   @override
+  _QuizResultScreenState createState() => _QuizResultScreenState();
+}
+
+class _QuizResultScreenState extends State<QuizResultScreen> {
+  int _currentQuestionIndex = 0;
+  ExamFile? _examFile;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchExamFile();
+  }
+
+  Future<void> _fetchExamFile() async {
+    final getIt = GetIt.instance;
+    final isar = getIt.get<Isar>();
+    final examFile = await isar.examFiles.filter().examNameEqualTo(widget.examName).findFirst();
+    setState(() {
+      _examFile = examFile;
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    if (_examFile == null) {
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
         title: Text('Segno', style: AppTheme.textTheme.displaySmall),
         backgroundColor: AppTheme.mainColor,
+        automaticallyImplyLeading: false,
       ),
       body: Column(
         children: [
@@ -29,37 +58,74 @@ class QuizResultScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton(
-                  onPressed: () {
-                    // Button action
-                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppTheme.mainColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    textStyle: AppTheme.textTheme.labelLarge,
+                    fixedSize: const Size(150, 50),
+                  ),
                   child: const Text('메인화면'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                 ),
-                Text(
-                  '점수: $score/${questions.length}',
-                  style: const TextStyle(fontSize: 18),
+                Padding(
+                  padding: const EdgeInsets.only(right: 5),
+                  child: Row(
+                    children: [
+                      Text(
+                        '점수',
+                        style: AppTheme.textTheme.labelLarge,
+                      ),
+                      const SizedBox(
+                        width: 10,
+                      ),
+                      Container(
+                        width: 100,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: AppTheme.mainColor,
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Center(
+                          child: Text(
+                            '${widget.examResult.correctNumber}/${_examFile!.questions.length}',
+                            style: const TextStyle(fontSize: 24, color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            crossAxisAlignment: CrossAxisAlignment.end,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const Spacer(),
               Expanded(
                 child: Wrap(
                   spacing: 8,
                   runSpacing: 8,
+                  runAlignment: WrapAlignment.start,
                   children: List.generate(
-                    questions.length,
-                    (index) => GestureDetector(
+                    _examFile!.questions.length,
+                        (index) => GestureDetector(
                       onTap: () {
-                        // Navigate to the corresponding question
+                        setState(() {
+                          _currentQuestionIndex = index;
+                        });
                       },
                       child: CircleAvatar(
-                        backgroundColor:
-                            userAnswers[index] == questions[index].answer
-                                ? Colors.green
-                                : Colors.red,
+                        backgroundColor: widget.examResult.selectedChoices[index] ==
+                            _examFile!.questions.elementAt(index).answer - 1
+                            ? Colors.green
+                            : Colors.red,
                         child: Text(
                           '${index + 1}',
                           style: const TextStyle(color: Colors.white),
@@ -75,178 +141,20 @@ class QuizResultScreen extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Expanded(
-                  child: Scrollbar(
-                    child: SingleChildScrollView(
-                      child: Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text(
-                          """
-  import 'package:flutter/material.dart';
-import 'package:numberpicker/numberpicker.dart';
-
-void main() {
-  runApp(new ExampleApp());
-}
-
-class ExampleApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'NumberPicker Example',
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  @override
-  _MyHomePageState createState() => new _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-  Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        appBar: AppBar(
-          bottom: TabBar(
-            tabs: [
-              Tab(text: 'Integer'),
-              Tab(text: 'Decimal'),
-            ],
-          ),
-          title: Text('Numberpicker example'),
-        ),
-        body: TabBarView(
-          children: [
-            _IntegerExample(),
-            _DecimalExample(),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class _IntegerExample extends StatefulWidget {
-  @override
-  __IntegerExampleState createState() => __IntegerExampleState();
-}
-
-class __IntegerExampleState extends State<_IntegerExample> {
-  int _currentIntValue = 10;
-  int _currentHorizontalIntValue = 10;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        SizedBox(height: 16),
-        Text('Default', style: Theme.of(context).textTheme.headline6),
-        NumberPicker(
-          value: _currentIntValue,
-          minValue: 0,
-          maxValue: 100,
-          step: 10,
-          haptics: true,
-          onChanged: (value) => setState(() => _currentIntValue = value),
-        ),
-        SizedBox(height: 32),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              icon: Icon(Icons.remove),
-              onPressed: () => setState(() {
-                final newValue = _currentIntValue - 10;
-                _currentIntValue = newValue.clamp(0, 100);
-              }),
-            ),
-            Text('Current int value: '),
-            IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () => setState(() {
-                final newValue = _currentIntValue + 20;
-                _currentIntValue = newValue.clamp(0, 100);
-              }),
-            ),
-          ],
-        ),
-        Divider(color: Colors.grey, height: 32),
-        SizedBox(height: 16),
-        Text('Horizontal', style: Theme.of(context).textTheme.headline6),
-        NumberPicker(
-          value: _currentHorizontalIntValue,
-          minValue: 0,
-          maxValue: 100,
-          step: 10,
-          itemHeight: 100,
-          axis: Axis.horizontal,
-          onChanged: (value) =>
-              setState(() => _currentHorizontalIntValue = value),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.black26),
-          ),
-        ),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              icon: Icon(Icons.remove),
-              onPressed: () => setState(() {
-                final newValue = _currentHorizontalIntValue - 10;
-                _currentHorizontalIntValue = newValue.clamp(0, 100);
-              }),
-            ),
-            Text('Current horizontal int value: '),
-            IconButton(
-              icon: Icon(Icons.add),
-              onPressed: () => setState(() {
-                final newValue = _currentHorizontalIntValue + 20;
-                _currentHorizontalIntValue = newValue.clamp(0, 100);
-              }),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _DecimalExample extends StatefulWidget {
-  @override
-  __DecimalExampleState createState() => __DecimalExampleState();
-}
-
-class __DecimalExampleState extends State<_DecimalExample> {
-  double _currentDoubleValue = 3.0;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        SizedBox(height: 16),
-        Text('Decimal', style: Theme.of(context).textTheme.headline6),
-        DecimalNumberPicker(
-          value: _currentDoubleValue,
-          minValue: 0,
-          maxValue: 10,
-          decimalPlaces: 2,
-          onChanged: (value) => setState(() => _currentDoubleValue = value),
-        ),
-        SizedBox(height: 32),
-      ],
-    );
-  }
-}
-  """,
-                          style: TextStyle(fontSize: 18),
+                Expanded(
+                  child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.black, width: 1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Scrollbar(
+                      child: SingleChildScrollView(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            _examFile!.passage,
+                            style: const TextStyle(fontSize: 18),
+                          ),
                         ),
                       ),
                     ),
@@ -255,81 +163,85 @@ class __DecimalExampleState extends State<_DecimalExample> {
                 Expanded(
                   child: Padding(
                     padding: const EdgeInsets.all(16.0),
-                    child: ListView.builder(
-                      itemCount: questions.length,
-                      itemBuilder: (context, index) {
-                        final question = questions[index];
-                        final userAnswer = userAnswers[index];
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: double.infinity,
-                              padding: const EdgeInsets.all(16),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                border: Border.all(
-                                  color: AppTheme.mainColor,
-                                  width: 2,
-                                ),
-                              ),
-                              child: Text(
-                                question.question,
-                                style: const TextStyle(fontSize: 18),
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            ...question.choices.map((choice) {
-                              final isCorrect = question.answer ==
-                                  question.choices.indexOf(choice);
-                              final isSelected = userAnswer ==
-                                  question.choices.indexOf(choice);
-                              return Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(vertical: 4.0),
-                                child: Row(
-                                  children: [
-                                    Icon(
-                                      isCorrect
-                                          ? Icons.check_circle
-                                          : isSelected
-                                              ? Icons.cancel
-                                              : Icons.circle,
-                                      color: isCorrect
-                                          ? Colors.green
-                                          : isSelected
-                                              ? Colors.red
-                                              : Colors.grey,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Text(
-                                      choice,
-                                      style: TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: isCorrect
-                                            ? FontWeight.bold
-                                            : FontWeight.normal,
-                                        color: isSelected && !isCorrect
-                                            ? Colors.red
-                                            : Colors.black,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              );
-                            }),
-                            const SizedBox(height: 16),
-                          ],
-                        );
-                      },
-                    ),
+                    child: _buildQuestionWidget(),
                   ),
                 ),
+                /*Expanded(
+                  flex: 1,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Text(
+                      _examFile!.questions.elementAt(_currentQuestionIndex).comment,
+                      style: const TextStyle(fontSize: 18),
+                    ),
+                  ),
+                ),*/
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildQuestionWidget() {
+    final question = _examFile!.questions.elementAt(_currentQuestionIndex);
+    final userAnswer = widget.examResult.selectedChoices[_currentQuestionIndex];
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(10),
+            border: Border.all(
+              color: AppTheme.mainColor,
+              width: 2,
+            ),
+          ),
+          child: Text(
+            question.question,
+            style: const TextStyle(fontSize: 18),
+          ),
+        ),
+        const SizedBox(height: 8),
+        ...question.choices.asMap().entries.map((entry) {
+          final choice = entry.value;
+          final choiceIndex = entry.key;
+          final isCorrect = question.answer - 1 == choiceIndex;
+          final isSelected = userAnswer == choiceIndex;
+          return Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4.0),
+            child: Row(
+              children: [
+                Icon(
+                  isCorrect
+                      ? Icons.check_circle
+                      : isSelected
+                      ? Icons.cancel
+                      : Icons.circle,
+                  color: isCorrect
+                      ? Colors.green
+                      : isSelected
+                      ? Colors.red
+                      : Colors.grey,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  choice,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: isCorrect ? FontWeight.bold : FontWeight.normal,
+                    color: isSelected && !isCorrect ? Colors.red : Colors.black,
+                  ),
+                ),
+              ],
+            ),
+          );
+        }).toList(),
+      ],
     );
   }
 }

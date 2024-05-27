@@ -80,12 +80,13 @@ class _ProblemSelectionPageState extends State<ProblemSelectionPage> {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Padding(
-            padding: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.9),
+            padding:
+                EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.9),
             child: IconButton(
               onPressed: () {
                 Navigator.pop(context);
               },
-              icon: Icon(Icons.arrow_back),
+              icon: Image.asset("assets/images/back-arrow.png"),
             ),
           ),
           Padding(
@@ -132,38 +133,59 @@ class _ProblemSelectionPageState extends State<ProblemSelectionPage> {
                               flex: 6,
                               child: ListView(
                                 children: selectedTypes.map((type) {
-                                  return Chip(
-                                    shape: ContinuousRectangleBorder(
-                                      side: BorderSide(
-                                        color: AppTheme.mainColor,
-                                        width: 1
-                                      )
-                                    ),
-                                    onDeleted: () {
-                                      setState(() {
-                                        selectedTypes.remove(type);
-                                        totalProblems -= problemCounts[type]!;
-                                        problemCounts[type] = 0;
-                                      });
-                                    },
-                                    label: Row(
-                                      mainAxisSize: MainAxisSize.min,
+                                  return Padding(
+                                    padding: const EdgeInsets.only(left: 20),
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
                                       children: [
-                                        Container(
-                                          height: 50,
-                                          width: 200,
-                                          decoration: BoxDecoration(
-                                            border: Border.all(
-                                              color: AppTheme.mainColor,
-                                              style: BorderStyle.solid,
-                                              width: 3,
-                                            ),
+                                        Chip(
+                                          shape: const ContinuousRectangleBorder(
+                                              side: BorderSide(
+                                                  color: Colors.white, width: 0)),
+                                          onDeleted: () {
+                                            setState(() {
+                                              selectedTypes.remove(type);
+                                              totalProblems -= problemCounts[type]!;
+                                              problemCounts[type] = 0;
+                                            });
+                                          },
+                                          label: Row(
+                                            mainAxisSize: MainAxisSize.min,
+                                            children: [
+                                              Container(
+                                                height: 50,
+                                                width: 200,
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(
+                                                    color: AppTheme.mainColor,
+                                                    style: BorderStyle.solid,
+                                                    width: 5,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(5.0),
+                                                ),
+                                                child: Center(child: Text(type)),
+                                              ),
+                                              const SizedBox(width: 8.0),
+                                              Container(
+                                                width: 50,
+                                                  height: 50,
+                                                  decoration: BoxDecoration(
+                                                    border: Border.all(
+                                                      color: AppTheme.mainColor,
+                                                      style: BorderStyle.solid,
+                                                      width: 5,
+                                                    ),
+                                                    borderRadius:
+                                                        BorderRadius.circular(5.0),
+                                                  ),
+                                                  child:
+                                                      Center(child: Text('${problemCounts[type]}'))),
+                                              Container(width: 5,),
+                                              const Text('문제'),
+                                            ],
                                           ),
-                                          child: Center(child: Text(type)),
                                         ),
-                                        const SizedBox(width: 8.0),
-                                        Text('${problemCounts[type]}'),
-                                        Text('문제'),
                                       ],
                                     ),
                                   );
@@ -187,9 +209,10 @@ class _ProblemSelectionPageState extends State<ProblemSelectionPage> {
                         child: Column(
                           children: [
                             Expanded(
-                              flex: 3,
+                              flex: 4,
                               child: Container(
                                 decoration: BoxDecoration(
+                                  color: AppTheme.mainColor,
                                   border: Border.all(
                                     color: AppTheme.mainColor,
                                     style: BorderStyle.solid,
@@ -197,34 +220,68 @@ class _ProblemSelectionPageState extends State<ProblemSelectionPage> {
                                   ),
                                 ),
                                 child: Center(
-                                  child: Text('문제 수: $totalProblems'),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        '문제 수',
+                                        style: AppTheme.textTheme.labelLarge,
+                                      ),
+                                      Text(
+                                        '$totalProblems',
+                                        style: AppTheme.textTheme.displayMedium,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
+                            Padding(
+                              padding: const EdgeInsets.all(4.0),
+                              child: Text("문제 유형", style: AppTheme.textTheme.labelLarge,),
+                            ),
                             Expanded(
-                              flex: 7,
+                              flex: 6,
                               child: ListView(
                                 children: problemCounts.keys.map((type) {
                                   return Row(
                                     children: [
                                       Radio(
                                         value: type,
-                                        groupValue: selectedTypes.contains(type) ? type : '',
+                                        groupValue: selectedTypes.contains(type)
+                                            ? type
+                                            : '',
                                         onChanged: (_) {
                                           toggleProblemType(type);
                                         },
                                       ),
-                                      Text(type),
-                                      const SizedBox(width: 8.0),
+                                      Container(
+                                          width: 110,
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: AppTheme.mainColor,
+                                              style: BorderStyle.solid,
+                                              width: 3,
+                                            ),
+                                            borderRadius:
+                                                BorderRadius.circular(5.0),
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              type,
+                                              style:
+                                                  AppTheme.textTheme.labelLarge,
+                                            ),
+                                          )),
+                                      const SizedBox(width: 1.0),
                                       selectedTypes.contains(type)
                                           ? NumberPicker(
-                                        value: problemCounts[type]!,
-                                        minValue: 1,
-                                        maxValue: 10,
-                                        onChanged: (value) {
-                                          updateProblemCount(type, value);
-                                        },
-                                      )
+                                              value: problemCounts[type]!,
+                                              minValue: 1,
+                                              maxValue: 10,
+                                              onChanged: (value) {
+                                                updateProblemCount(type, value);
+                                              },
+                                            )
                                           : const SizedBox(),
                                     ],
                                   );
@@ -240,7 +297,7 @@ class _ProblemSelectionPageState extends State<ProblemSelectionPage> {
               ),
             ),
           ),
-          const SizedBox(height: 20),
+          const SizedBox(height: 10),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
               backgroundColor: AppTheme.mainColor,
@@ -249,7 +306,7 @@ class _ProblemSelectionPageState extends State<ProblemSelectionPage> {
                 borderRadius: BorderRadius.circular(10),
               ),
               textStyle: AppTheme.textTheme.labelLarge,
-              fixedSize: Size(200, 50),
+              fixedSize: const Size(180, 50),
             ),
             child: const Text('문제 만들기'),
             onPressed: () {

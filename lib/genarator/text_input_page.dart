@@ -33,11 +33,22 @@ class _TextInputPageState extends State<TextInputPage> {
         ),
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              SizedBox(
+        child: Column(
+          children: [
+            const SizedBox(height: 10,),
+            Padding(
+              padding: EdgeInsets.only(right: MediaQuery.of(context).size.width * 0.95),
+              child: IconButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+                icon: Image.asset("assets/images/back-arrow.png"),
+              ),
+            ),
+            const SizedBox(height: 10,),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: SizedBox(
                 height: 450,
                 child: TextField(
                   minLines: 20,//기기별 수정 필요
@@ -53,48 +64,35 @@ class _TextInputPageState extends State<TextInputPage> {
                   },
                 ),
               ),
-              const SizedBox(height: 100.0),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
+            ),
+            const SizedBox(height: 50.0),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
                       backgroundColor: AppTheme.mainColor,
-                        foregroundColor: Colors.white,
+                      foregroundColor: Colors.white,
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
                       textStyle: AppTheme.textTheme.labelLarge,
                       fixedSize: const Size(300,50)
-                    ),
-                    child: const Text('Scan 하기'),
-                    onPressed: () {},
                   ),
-                  ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                        backgroundColor: AppTheme.mainColor,
-                        foregroundColor: Colors.white,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10),
-                        ),
-                        textStyle: AppTheme.textTheme.labelLarge,
-                        fixedSize: const Size(300,50)
-                    ),
-                    child: const Text('확인'),
-                    onPressed: () {
-                      Navigator.pop(context);
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) =>
-                               ProblemSelectionPage(value)),
-                      );
-                    },
-                  ),
-                ],
-              ),
-            ],
-          ),
+                  child: const Text('확인'),
+                  onPressed: () {
+                    Navigator.pop(context);
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) =>
+                             ProblemSelectionPage(value)),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

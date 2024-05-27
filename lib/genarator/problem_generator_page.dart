@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:segno/Style/style.dart';
+import 'package:segno/db/file_db.dart';
 import 'package:segno/genarator/problem_show_page.dart';
 import 'package:http/http.dart' as http;
 import 'package:segno/main/file_manager.dart';
@@ -20,13 +22,15 @@ class ProblemGeneratorPage extends StatefulWidget {
 }
 
 class _ProblemGeneratorPageState extends State<ProblemGeneratorPage> {
-  //cloudfunction으로 보낼내용
-  Future<void> generateQuestions(
+  bool _isLoading = true;
+  bool _isError = false;
+
+  Future<List<QuestionFile>> generateQuestions(
       String passage, List<Map<String, dynamic>> questionTypes) async {
-    final url = 'urlssssssssssssssssssssss';
+    final url = 'https://asia-northeast3-segno-a4dbc.cloudfunctions.net/question_test';
     final requestBody = {
-      'passage': passage,//문제를 생성할 본분 전체
-      'questionTypes': questionTypes,//문제 생성하기 위한 유형 및 개수
+      'passage': passage,
+      'questionTypes': questionTypes,
     };
     final response = await http.post(
       Uri.parse(url),
@@ -36,45 +40,66 @@ class _ProblemGeneratorPageState extends State<ProblemGeneratorPage> {
 
     if (response.statusCode == 200) {
       final responseData = json.decode(response.body);
-      final List<Question> questions =
-          responseData['questions'].map<Question>((questionData) {
-        return Question(
-          questionData['text'],
-          List<String>.from(questionData['choices']),
-          questionData['answer'],
-          questionData['comment'],
+      final List<QuestionFile> questions =
+      responseData['questions'].map<QuestionFile>((questionData) {
+        return QuestionFile(
+          question: questionData['text'],
+          choices: List<String>.from(questionData['choices']),
+          answer: questionData['answer'],
+          comment: questionData['comment'],
         );
       }).toList();
-      // Process the generated questions and update the UI
+      return questions;
     } else {
-      // Handle the error
+      throw Exception('Failed to generate questions');
     }
   }
 
-  String test()
-  {
-    String questionTypesText = '';
+  Future<void> _generateQuestions() async {
+    try {
+      final questions = await generateQuestions(
+        widget.passage,
+        widget.questionTypes,
+      ).timeout(const Duration(seconds: 30));
 
-    for (var questionType in widget.questionTypes) {
-      String type = questionType['string'];
-      int count = questionType['int'];
-      questionTypesText += '$type: $count\n';
+      // 결과 처리 및 다음 페이지로 이동
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+            builder: (context) => ProblemShowPage(
+              widget.passage,
+              questions: questions,
+            )),
+      );
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _isError = true;
+      });
+
+      await showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: const Text('오류'),
+          content: const Text('응답이 없습니다.'),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                Navigator.pop(context);
+              },
+              child: const Text('확인'),
+            ),
+          ],
+        ),
+      );
     }
-
-    return questionTypesText;
   }
-
 
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 1), () {
-      Navigator.pushReplacement(
-        context,
-        //수정 필요
-        MaterialPageRoute(builder: (context) => ProblemShowPage(widget.passage)),
-      );
-    });
+    _generateQuestions();
   }
 
   @override
@@ -87,7 +112,8 @@ class _ProblemGeneratorPageState extends State<ProblemGeneratorPage> {
         automaticallyImplyLeading: false,
       ),
       body: Center(
-        child: Column(
+        child: _isLoading
+            ? Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             const CircularProgressIndicator(),
@@ -96,16 +122,11 @@ class _ProblemGeneratorPageState extends State<ProblemGeneratorPage> {
               '문제를 생성하고 있습니다...',
               style: AppTheme.textTheme.displaySmall,
             ),
-            Text(
-              widget.passage,
-              style: AppTheme.textTheme.displaySmall,
-            ),
-            Text(
-              test(),
-              style: AppTheme.textTheme.displaySmall,
-            ),
           ],
-        ),
+        )
+            : _isError
+            ? Container()
+            : Container(),
       ),
     );
   }

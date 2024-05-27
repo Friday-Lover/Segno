@@ -16,8 +16,8 @@ class Practice extends StatelessWidget {
         backgroundColor: AppTheme.mainColor,
       ),
       body:
-        Column(
-          children: const [
+        const Column(
+          children: [
             //앱에서 보이는 것은 여기에 (column 제거하고 다른거 써도 무방)
             Text("연습장"),
           ],

@@ -11,12 +11,15 @@ class QuizScreen extends StatefulWidget {
   final String passage;
   final String examName;
   final List<QuestionFile> questions;
+  final bool unlimited;
 
   const QuizScreen({
     super.key,
     required this.timerValue,
     required this.passage,
-    required this.questions, required this.examName,
+    required this.questions,
+    required this.examName,
+    required this.unlimited,
   });
 
   @override
@@ -26,7 +29,7 @@ class QuizScreen extends StatefulWidget {
 class _QuizScreenState extends State<QuizScreen> {
   int currentQuestionIndex = 0;
   int timer = 0;
-  late Timer _timer;
+  Timer? _timer;
   List<int?> selectedChoices = [];
 
   void showTextPopup(BuildContext context) {
@@ -100,21 +103,27 @@ class _QuizScreenState extends State<QuizScreen> {
 
   void selectChoice(int questionIndex, int choiceIndex) {
     setState(() {
-      selectedChoices[questionIndex] = choiceIndex;
+      if (selectedChoices[questionIndex] == choiceIndex) {
+        selectedChoices[questionIndex] = null;
+      } else {
+        selectedChoices[questionIndex] = choiceIndex;
+      }
     });
   }
 
   void startTimer() {
-    const oneSec = Duration(seconds: 1);
-    _timer = Timer.periodic(oneSec, (Timer timer) {
-      setState(() {
-        if (this.timer == 0) {
-          _timer.cancel();
-        } else {
-          this.timer--;
-        }
+    if (!widget.unlimited) {
+      const oneSec = Duration(seconds: 1);
+      _timer = Timer.periodic(oneSec, (Timer timer) {
+        setState(() {
+          if (this.timer == 0) {
+            _timer?.cancel();
+          } else {
+            this.timer--;
+          }
+        });
       });
-    });
+    }
   }
 
   String getTimerText() {
@@ -127,27 +136,20 @@ class _QuizScreenState extends State<QuizScreen> {
     int correctAnswers = 0;
     int totalQuestions = widget.questions.length;
 
+    final examFile = await isar.examFiles
+        .filter()
+        .examNameEqualTo(widget.examName)
+        .findFirst();
+
+
+
     for (int i = 0; i < widget.questions.length; i++) {
-      if (selectedChoices[i] != null && selectedChoices[i]! + 1 == widget.questions[i].answer) {
+      if (selectedChoices[i] != null &&
+          selectedChoices[i]! + 1 == widget.questions[i].answer) {
         correctAnswers++;
       }
     }
 
-    await saveQuizResult(correctAnswers, totalQuestions);
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => QuizResult(
-          examName: widget.examName,
-          correctAnswers: correctAnswers,
-          totalQuestions: totalQuestions,
-        ),
-      ),
-    );
-  }
-
-  Future<void> saveQuizResult(int correctAnswers, int totalQuestions) async {
-    final examFile = await isar.examFiles.filter().examNameEqualTo(widget.examName).findFirst();
 
     if (examFile != null) {
       final examResult = ExamResult(
@@ -160,27 +162,41 @@ class _QuizScreenState extends State<QuizScreen> {
       await isar.writeTxn(() async {
         await isar.examResults.put(examResult);
         examFile.examResults.add(examResult);
+        examFile.examResults.save();
       });
+
     }
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => QuizResult(
+          examName: widget.examName,
+          correctAnswers: correctAnswers,
+          totalQuestions: totalQuestions,
+        ),
+      ),
+    );
   }
 
   @override
   void initState() {
     super.initState();
-    selectedChoices = List<int?>.filled(questions.length, null);
+    selectedChoices = List<int?>.filled(widget.questions.length, null);
     timer = widget.timerValue * 60; // 이전 파일에서 받아온 값을 초 단위로 변환하여 타이머 초기값으로 설정
     startTimer();
   }
 
   @override
   void dispose() {
-    _timer.cancel();
+    _timer?.cancel();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     QuestionFile currentQuestion = widget.questions[currentQuestionIndex];
+    int totalPages = (widget.questions.length / 5).ceil();
+    int currentPage = (currentQuestionIndex / 5).floor();
 
     return Scaffold(
       appBar: AppBar(
@@ -200,10 +216,16 @@ class _QuizScreenState extends State<QuizScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      getTimerText(),
-                      style: const TextStyle(fontSize: 24),
-                    ),
+                    if (!widget.unlimited)
+                      Text(
+                        getTimerText(),
+                        style: const TextStyle(fontSize: 24),
+                      ),
+                    if (widget.unlimited)
+                      const Text(
+                        "",
+                        style: TextStyle(fontSize: 24),
+                      ),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppTheme.mainColor,
@@ -223,22 +245,33 @@ class _QuizScreenState extends State<QuizScreen> {
                 ),
               ),
               Padding(
-                padding: const EdgeInsets.all(40.0),
+                padding: const EdgeInsets.symmetric(horizontal: 40.0),
                 child: Column(
                   children: [
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.arrow_left),
+                          icon: Image.asset(
+                              "assets/images/direction-arrow_4.png"),
                           onPressed: goToPreviousQuestion,
                         ),
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Padding(
-                              padding: const EdgeInsets.only(right: 30, bottom: 20),
-                              child: TextButton(
+                              padding:
+                                  const EdgeInsets.only(right: 30, bottom: 20),
+                              child: ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppTheme.mainColor,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                  textStyle: AppTheme.textTheme.labelLarge,
+                                  minimumSize: const Size(200, 50),
+                                ),
                                 child: const Text("본문보기"),
                                 onPressed: () {
                                   showTextPopup(context);
@@ -278,7 +311,10 @@ class _QuizScreenState extends State<QuizScreen> {
                                               index
                                           ? Colors.blue
                                           : null,
-                                      minimumSize: Size(MediaQuery.of(context).size.width * 0.6, 50),
+                                      minimumSize: Size(
+                                          MediaQuery.of(context).size.width *
+                                              0.6,
+                                          50),
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(10),
                                       ),
@@ -295,7 +331,8 @@ class _QuizScreenState extends State<QuizScreen> {
                           ],
                         ),
                         IconButton(
-                          icon: const Icon(Icons.arrow_right),
+                          icon: Image.asset(
+                              "assets/images/direction-arrow_3.png"),
                           onPressed: goToNextQuestion,
                         ),
                       ],
@@ -307,18 +344,62 @@ class _QuizScreenState extends State<QuizScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: const Row(
+      bottomNavigationBar: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(Icons.circle, color: Colors.blue),
-          SizedBox(width: 10),
-          Icon(Icons.circle, color: Colors.grey),
-          SizedBox(width: 10),
-          Icon(Icons.circle, color: Colors.grey),
-          SizedBox(width: 10),
-          Icon(Icons.circle, color: Colors.grey),
-          SizedBox(width: 10),
-          Icon(Icons.circle, color: Colors.grey),
+          IconButton(
+            icon: const Icon(Icons.arrow_back_ios),
+            onPressed: () {
+              setState(() {
+                if (currentPage > 0) {
+                  currentPage--;
+                  currentQuestionIndex = currentPage * 5;
+                }
+              });
+            },
+          ),
+          ...List.generate(5, (index) {
+            int questionIndex = currentPage * 5 + index;
+            if (questionIndex < widget.questions.length) {
+              return GestureDetector(
+                onTap: () {
+                  setState(() {
+                    currentQuestionIndex = questionIndex;
+                  });
+                },
+                child: Container(
+                  width: 30,
+                  height: 30,
+                  margin: const EdgeInsets.symmetric(horizontal: 5),
+                  decoration: BoxDecoration(
+                    color: selectedChoices[questionIndex] != null
+                        ? Colors.cyan
+                        : AppTheme.subColor,
+                    borderRadius: BorderRadius.circular(5),
+                  ),
+                  child: Center(
+                    child: Text(
+                      '${questionIndex + 1}',
+                      style: const TextStyle(color: Colors.white),
+                    ),
+                  ),
+                ),
+              );
+            } else {
+              return const SizedBox(width: 40);
+            }
+          }),
+          IconButton(
+            icon: const Icon(Icons.arrow_forward_ios),
+            onPressed: () {
+              setState(() {
+                if (currentPage < totalPages - 1) {
+                  currentPage++;
+                  currentQuestionIndex = currentPage * 5;
+                }
+              });
+            },
+          ),
         ],
       ),
     );

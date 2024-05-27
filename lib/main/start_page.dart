@@ -95,7 +95,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => TextInputPage()),
+                      MaterialPageRoute(builder: (context) => const TextInputPage()),
                     );
                   },
                 ),
@@ -115,7 +115,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => TextInputPage()),
+                    MaterialPageRoute(builder: (context) => const TextInputPage()),
                   );
                 },
               ),

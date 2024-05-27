@@ -2,9 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:isar/isar.dart';
-import 'package:segno/answer/answer_main.dart';
 import 'package:segno/quiz/quiz_info.dart';
 import 'package:get_it/get_it.dart';
+import 'package:segno/quiz/quiz_start.dart';
 import '../db/file_db.dart';
 import '../style/style.dart';
 
@@ -319,18 +319,6 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
                           FirebaseAuth.instance.signOut();
                         },
                         child: const Text("logout")),
-                    ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => QuizResultScreen(
-                                    questions: questions,
-                                    userAnswers: userAnswers,
-                                    score: 6)),
-                          );
-                        },
-                        child: const Text("commit")),
                   ],
                 ),
                 Row(
@@ -489,11 +477,65 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
                           child: Text(examFile.examName),
                         ),
                         child: Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          color: Colors.white,
                           child: ExpansionTile(
-                            title: Text(examFile.examName),
-                            trailing: const Icon(Icons.expand_more),
-                            backgroundColor: Colors.white,
-                            collapsedBackgroundColor: Colors.grey[200],
+                            title: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  examFile.examName,
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  '총 문제 수: ${examFile.questions.length}',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 14,
+                                  ),
+                                ),
+                                const SizedBox(height: 4),
+                                Text(
+                                  '수정 일자: 2024-05-21',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            trailing: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppTheme.mainColor,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                textStyle: AppTheme.textTheme.labelLarge,
+                                fixedSize: const Size(100, 40),
+                              ),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => QuizStart(
+                                      examName: examFile.examName,
+                                      passage: examFile.passage,
+                                      questions: examFile.questions.toList(),
+                                    ),
+                                  ),
+                                );
+                              },
+                              child: const Text('시험'),
+                            ),
+                            backgroundColor: Colors.transparent,
+                            collapsedBackgroundColor: Colors.transparent,
                             iconColor: Colors.blue,
                             collapsedIconColor: Colors.black,
                             textColor: Colors.black,
@@ -505,19 +547,16 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
                               Padding(
                                 padding: const EdgeInsets.all(16),
                                 child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                   children: [
                                     ElevatedButton(
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: AppTheme.subColor,
                                         foregroundColor: Colors.white,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
+                                          borderRadius: BorderRadius.circular(10),
                                         ),
-                                        textStyle:
-                                            AppTheme.textTheme.labelLarge,
+                                        textStyle: AppTheme.textTheme.labelLarge,
                                         fixedSize: const Size(200, 50),
                                       ),
                                       onPressed: () {
@@ -527,8 +566,7 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
                                             builder: (context) => QuizInfo(
                                               examName: examFile.examName,
                                               passage: examFile.passage,
-                                              examResults:
-                                                  examFile.examResults.toList(),
+                                              examResults: examFile.examResults.toList(),
                                             ),
                                           ),
                                         );
@@ -540,26 +578,9 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
                                         backgroundColor: AppTheme.subColor,
                                         foregroundColor: Colors.white,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
+                                          borderRadius: BorderRadius.circular(10),
                                         ),
-                                        textStyle:
-                                            AppTheme.textTheme.labelLarge,
-                                        fixedSize: const Size(200, 50),
-                                      ),
-                                      onPressed: () {},
-                                      child: const Text('공유 하기'),
-                                    ),
-                                    ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor: AppTheme.subColor,
-                                        foregroundColor: Colors.white,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                        ),
-                                        textStyle:
-                                            AppTheme.textTheme.labelLarge,
+                                        textStyle: AppTheme.textTheme.labelLarge,
                                         fixedSize: const Size(200, 50),
                                       ),
                                       onPressed: () async {
@@ -573,16 +594,14 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
                                                 onChanged: (value) {
                                                   name = value;
                                                 },
-                                                decoration:
-                                                    const InputDecoration(
+                                                decoration: const InputDecoration(
                                                   hintText: '새로운 파일 이름을 입력하세요',
                                                 ),
                                               ),
                                               actions: [
                                                 TextButton(
                                                   onPressed: () {
-                                                    Navigator.pop(
-                                                        context, name);
+                                                    Navigator.pop(context, name);
                                                   },
                                                   child: const Text('변경'),
                                                 ),
@@ -599,6 +618,19 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
                                         }
                                       },
                                       child: const Text('이름 변경'),
+                                    ),
+                                    ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: AppTheme.subColor,
+                                        foregroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(10),
+                                        ),
+                                        textStyle: AppTheme.textTheme.labelLarge,
+                                        fixedSize: const Size(200, 50),
+                                      ),
+                                      onPressed: () {},
+                                      child: const Text('공유 하기'),
                                     ),
                                   ],
                                 ),
