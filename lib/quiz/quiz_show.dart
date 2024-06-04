@@ -13,7 +13,7 @@ class QuizShowPage extends StatefulWidget {
   final String examName; // examName 필드로 변경
   final String passage; // value 필드 추가
 
-  const QuizShowPage(this.examName,this.passage, {super.key});
+  const QuizShowPage(this.examName, this.passage, {super.key});
 
   @override
   _QuizShowPageState createState() => _QuizShowPageState();
@@ -37,13 +37,12 @@ class _QuizShowPageState extends State<QuizShowPage> {
     }
 
     copiedText +=
-    '정답: ${questions.map((question) => question.answer).join(', ')}';
+        '정답: ${questions.map((question) => question.answer).join(', ')}';
 
     Clipboard.setData(ClipboardData(text: copiedText));
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('문제와 선택지가 복사되었습니다.')),
     );
-
   }
 
   Future<void> loadQuestions() async {
@@ -77,42 +76,78 @@ class _QuizShowPageState extends State<QuizShowPage> {
         ),
         automaticallyImplyLeading: false,
       ),
-      body: ListView.builder(
-        itemCount: questionTest.length,
-        itemBuilder: (context, index) {
-          final question = questionTest[index];
-          return Container(
-            margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-            decoration: BoxDecoration(
-              border: Border.all(color: AppTheme.mainColor),
-              borderRadius: BorderRadius.circular(8),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Padding(
+      body: Expanded(
+        flex: 8,
+        child: ListView.builder(
+          itemCount: questionTest.length,
+          itemBuilder: (context, index) {
+            final question = questionTest[index];
+            return Card(
+              elevation: 2,
+              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+                side: const BorderSide(color: AppTheme.mainColor, width: 3),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: const BoxDecoration(
+                      color: AppTheme.mainColor,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(8),
+                        topRight: Radius.circular(8),
+                      ),
+                    ),
+                    child: Text(
+                      '문제 ${index + 1}',
+                      style: AppTheme.textTheme.bodyLarge?.copyWith(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  Padding(
                     padding: const EdgeInsets.all(16),
                     child: Text(
                       question.question,
                       style: AppTheme.textTheme.bodyLarge,
                     ),
                   ),
-                ),
-                Column(
-                  children: question.choices.map((choice) {
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(vertical: 4),
-                      child: Text(
-                        choice,
-                        style: AppTheme.textTheme.bodyLarge,
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ],
-            ),
-          );
-        },
+                  Padding(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    child: Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children:
+                          List.generate(question.choices.length, (choiceIndex) {
+                        final choice = question.choices[choiceIndex];
+                        return Chip(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            side: const BorderSide(
+                                color: AppTheme.mainColor, width: 1),
+                          ),
+                          label: Text(
+                            '${choiceIndex + 1}. $choice',
+                            style: AppTheme.textTheme.bodyLarge?.copyWith(
+                              color: Colors.black,
+                            ),
+                          ),
+                        );
+                      }),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+              ),
+            );
+          },
+        ),
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(15.0),

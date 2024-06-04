@@ -23,6 +23,11 @@ class QuizInfo extends StatefulWidget {
 class _QuizInfoState extends State<QuizInfo> {
   ScrollController _scrollController = ScrollController();
 
+  String formatDate(String date){
+    String formattedDate = '${date.substring(0, 4)}-${date.substring(4, 6)}-${date.substring(6)}';
+    return  formattedDate;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -57,13 +62,20 @@ class _QuizInfoState extends State<QuizInfo> {
                 onPressed: () {
                   Navigator.pop(context);
                 },
-                icon: Image.asset("assets/images/back-arrow.png", width: 50,),
+                icon: Image.asset(
+                  "assets/images/back-arrow.png",
+                  width: 50,
+                ),
               ),
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: MediaQuery.of(context).size.width * 0.4),
-                child: Text(widget.examName,style: AppTheme.textTheme.headlineSmall,),
+                padding: EdgeInsets.symmetric(
+                    horizontal: MediaQuery.of(context).size.width * 0.4),
+                child: Text(
+                  widget.examName,
+                  style: AppTheme.textTheme.headlineSmall,
+                ),
               ),
-              Container(width: 50,),
+              const Spacer()
             ],
           ),
           Expanded(
@@ -87,8 +99,10 @@ class _QuizInfoState extends State<QuizInfo> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          Expanded(
+                          Flexible(
                             child: Container(
+                              width: MediaQuery.sizeOf(context).width * 0.5,
+                              height: MediaQuery.sizeOf(context).height * 0.8,
                               decoration: BoxDecoration(
                                 border: Border.all(
                                   color: Colors.grey,
@@ -120,10 +134,14 @@ class _QuizInfoState extends State<QuizInfo> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Center(child: Text("시험 이력",style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),)),
+                      const Center(
+                          child: Text(
+                        "시험 이력",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      )),
                       Expanded(
                         flex: 1,
                         child: ListView.builder(
@@ -134,14 +152,15 @@ class _QuizInfoState extends State<QuizInfo> {
                                 .asMap()
                                 .entries
                                 .where((entry) => entry.value != null)
-                                .map((entry) => 'Q${entry.key + 1}: ${entry.value + 1}')
+                                .map((entry) =>
+                                    'Q${entry.key + 1}: ${entry.value + 1}')
                                 .toList();
                             return GestureDetector(
                               onTap: () {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) =>QuizResultScreen(
+                                    builder: (context) => QuizResultScreen(
                                       examName: examResult.examName,
                                       examResult: examResult,
                                     ),
@@ -149,7 +168,8 @@ class _QuizInfoState extends State<QuizInfo> {
                                 );
                               },
                               child: Container(
-                                margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                                margin: const EdgeInsets.symmetric(
+                                    vertical: 8, horizontal: 16),
                                 padding: const EdgeInsets.all(16),
                                 decoration: BoxDecoration(
                                   color: Colors.white,
@@ -165,17 +185,78 @@ class _QuizInfoState extends State<QuizInfo> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      examResult.examName,
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          examResult.examName,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 4,
+                                            horizontal: 8,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppTheme.mainColor,
+                                            borderRadius:
+                                                BorderRadius.circular(20),
+                                          ),
+                                          child: Text(
+                                            '${examResult.correctNumber} / ${examResult.totalNumber}',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                     const SizedBox(height: 8),
-                                    Text(
-                                      'Correct: ${examResult.correctNumber} / Total: ${examResult.totalNumber}',
-                                      style: const TextStyle(fontSize: 16),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.calendar_today,
+                                          size: 16,
+                                          color: Colors.grey,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '시험 일자: ${formatDate(examResult.date)}',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 8),
+                                    const Divider(
+                                      color: Colors.grey,
+                                      thickness: 0.5,
+                                    ),
+                                    const SizedBox(height: 8),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.check_circle,
+                                          color: AppTheme.mainColor,
+                                          size: 20,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Text(
+                                          '정답률: ${((examResult.correctNumber / examResult.totalNumber) * 100).toStringAsFixed(1)}%',
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            color: AppTheme.mainColor,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
@@ -201,7 +282,8 @@ class _QuizInfoState extends State<QuizInfo> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => QuizShowPage(widget.examName,widget.passage),
+                                builder: (context) => QuizShowPage(
+                                    widget.examName, widget.passage),
                               ),
                             );
                           },

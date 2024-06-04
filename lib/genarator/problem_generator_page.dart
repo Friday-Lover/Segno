@@ -4,8 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:segno/Style/style.dart';
 import 'package:segno/db/file_db.dart';
 import 'package:segno/genarator/problem_show_page.dart';
+import 'package:loading_animation_widget/loading_animation_widget.dart';
 import 'package:http/http.dart' as http;
-import 'package:segno/main/file_manager.dart';
 
 class ProblemGeneratorPage extends StatefulWidget {
   final String passage;
@@ -27,7 +27,7 @@ class _ProblemGeneratorPageState extends State<ProblemGeneratorPage> {
 
   Future<List<QuestionFile>> generateQuestions(
       String passage, List<Map<String, dynamic>> questionTypes) async {
-    final url = 'https://asia-northeast3-segno-a4dbc.cloudfunctions.net/question_test';
+    const url = 'https://asia-northeast3-segno-a4dbc.cloudfunctions.net/Question_Generator';
     final requestBody = {
       'passage': passage,
       'questionTypes': questionTypes,
@@ -37,21 +37,43 @@ class _ProblemGeneratorPageState extends State<ProblemGeneratorPage> {
       body: json.encode(requestBody),
       headers: {'Content-Type': 'application/json'},
     );
+    debugPrint(response.body);
 
     if (response.statusCode == 200) {
       final responseData = json.decode(response.body);
       final List<QuestionFile> questions =
-      responseData['questions'].map<QuestionFile>((questionData) {
-        return QuestionFile(
-          question: questionData['text'],
-          choices: List<String>.from(questionData['choices']),
-          answer: questionData['answer'],
-          comment: questionData['comment'],
-        );
-      }).toList();
+      responseData['question'].map<QuestionFile?>((questionData) {
+        try {
+          final choices = List<String>.from(questionData['choices']);
+          final answer = int.parse(questionData['answer'].toString());
+
+          // 선택지 셔플
+          final shuffledChoices = List<String>.from(choices)..shuffle();
+          // 정답 인덱스 찾기
+          final answerIndex = shuffledChoices.indexOf(choices[answer - 1]);
+
+          return QuestionFile(
+            question: questionData['text'],
+            choices: shuffledChoices,
+            answer: answerIndex + 1,
+            comment: questionData['comment'],
+            highlight: questionData['highlight'] ?? '',
+            type: questionData['type'],
+          );
+        } catch (e) {
+          //debugPrint('Invalid question format: ${e.toString()}');
+          return null;
+        }
+      }).whereType<QuestionFile>().toList();
       return questions;
     } else {
-      throw Exception('Failed to generate questions');
+      final errorData = json.decode(response.body) as Map<String, dynamic>;
+      final errorMessage = errorData['error']?.toString() ?? 'Unknown error';
+      final errorDetails = errorData['details']?.toString() ?? 'No details';
+      throw Exception('Failed to generate questions. '
+          'Status code: ${response.statusCode}, '
+          'Error message: $errorMessage, '
+          'Details: $errorDetails');
     }
   }
 
@@ -60,7 +82,7 @@ class _ProblemGeneratorPageState extends State<ProblemGeneratorPage> {
       final questions = await generateQuestions(
         widget.passage,
         widget.questionTypes,
-      ).timeout(const Duration(seconds: 30));
+      ).timeout(const Duration(seconds: 180));
 
       // 결과 처리 및 다음 페이지로 이동
       Navigator.pushReplacement(
@@ -81,7 +103,7 @@ class _ProblemGeneratorPageState extends State<ProblemGeneratorPage> {
         context: context,
         builder: (context) => AlertDialog(
           title: const Text('오류'),
-          content: const Text('응답이 없습니다.'),
+          content: Text(e.toString()), // 실제 오류 메시지를 표시
           actions: [
             TextButton(
               onPressed: () {
@@ -116,7 +138,10 @@ class _ProblemGeneratorPageState extends State<ProblemGeneratorPage> {
             ? Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const CircularProgressIndicator(),
+            LoadingAnimationWidget.hexagonDots(
+              color: AppTheme.mainColor,
+              size: 200,
+            ),
             const SizedBox(height: 16.0),
             Text(
               '문제를 생성하고 있습니다...',

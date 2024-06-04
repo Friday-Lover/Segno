@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:segno/Style/style.dart';
 import 'package:segno/genarator/text_input_page.dart';
@@ -16,14 +17,14 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 3, vsync: this);
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
       initialIndex: 0,
-      length: 3,
+      length: 2,
       child: Scaffold(
         appBar: PreferredSize(
           preferredSize: const Size.fromHeight(60.0),
@@ -35,6 +36,41 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
               textAlign: TextAlign.center,
               style: AppTheme.textTheme.displaySmall,
             ),
+            actions: [
+              PopupMenuButton<String>(
+                icon: Icon(Icons.person),
+                onSelected: (value) {
+                  if (value == 'logout') {
+                    FirebaseAuth.instance.signOut();
+                  }
+                },
+                itemBuilder: (BuildContext context) {
+                  final user = FirebaseAuth.instance.currentUser;
+                  final email = user?.email;
+
+                  return [
+                    PopupMenuItem<String>(
+                      value: 'email',
+                      child: SizedBox(
+                          width: 200,
+                          child: Text(
+                            '이메일: $email',
+                            style: AppTheme.textTheme.labelMedium,
+                          )),
+                    ),
+                    PopupMenuItem<String>(
+                      value: 'logout',
+                      child: SizedBox(
+                          width: 200,
+                          child: Text(
+                            '로그아웃',
+                            style: AppTheme.textTheme.labelMedium,
+                          )),
+                    ),
+                  ];
+                },
+              ),
+            ],
           ),
         ),
         bottomNavigationBar: Theme(
@@ -60,9 +96,6 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
               ),
               Tab(
                 text: '문제 저장소',
-              ),
-              Tab(
-                text: '그룹',
               ),
             ],
             labelColor: Colors.white,
@@ -95,31 +128,14 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const TextInputPage()),
+                      MaterialPageRoute(
+                          builder: (context) => const TextInputPage()),
                     );
                   },
                 ),
               ),
             ),
             const LayoutBuilderWidget(),
-            SizedBox(
-              width: 20.0,
-              height: 20.0,
-              child: IconButton(
-                icon: Image.asset(
-                  'assets/images/add_color.png',
-                  width: 300,
-                  height: 300,
-                ),
-                color: Colors.white,
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const TextInputPage()),
-                  );
-                },
-              ),
-            ),
           ],
         ),
       ),

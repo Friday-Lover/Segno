@@ -1,7 +1,6 @@
 // quiz_start.dart
 import 'package:flutter/material.dart';
 import 'package:numberpicker/numberpicker.dart';
-import 'package:segno/main/file_manager.dart';
 import 'package:segno/quiz/quiz.dart';
 import '../db/file_db.dart';
 import '../style/style.dart';
@@ -23,9 +22,16 @@ class QuizStart extends StatefulWidget {
 }
 
 class _QuizStartState extends State<QuizStart> {
-  int quizTotal = questions.length;
+  late int quizTotal;
   int _currentIntValue = 10;
   bool _unlimitedTime = false;
+
+
+  @override
+  void initState() {
+    super.initState();
+    quizTotal = widget.questions.length;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +62,7 @@ class _QuizStartState extends State<QuizStart> {
                 height: 100,
               ),
               Text(
-                "총 ${quizTotal ~/ 6}문제",
+                "총 $quizTotal문제",
                 style: AppTheme.textTheme.displaySmall,
               ),
               Row(
@@ -101,16 +107,17 @@ class _QuizStartState extends State<QuizStart> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     Checkbox(
-                      checkColor: AppTheme.mainColor,
+                        checkColor: AppTheme.mainColor,
                         value: _unlimitedTime,
                         onChanged: (value) {
                           setState(() {
                             _unlimitedTime = value!;
                           });
-                        }
-
-                        ),
-                    Text("시간 제한없이 보기",style: AppTheme.textTheme.labelLarge,)
+                        }),
+                    Text(
+                      "시간 제한없이 보기",
+                      style: AppTheme.textTheme.labelLarge,
+                    )
                   ],
                 ),
               ),

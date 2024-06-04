@@ -43,4 +43,4 @@ app.*.map.json
 /android/app/release
 
 # auto generated files
-*.g.dart
+/lib/db/file_db.g.dart

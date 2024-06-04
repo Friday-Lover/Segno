@@ -49,11 +49,16 @@ class _ProblemShowPageState extends State<ProblemShowPage> {
         choices: question.choices,
         answer: question.answer,
         comment: question.comment,
+        highlight: question.highlight,
+        type: question.type,
       );
     }).toList();
 
     String examName = await _showSaveDialog(context) ?? '';
     if (examName.isEmpty) return;
+
+    final now = DateTime.now();
+    final formattedDate = '${now.year}${now.month.toString().padLeft(2, '0')}${now.day.toString().padLeft(2, '0')}';
 
     // 파일 이름 중복 확인
     final existingExamFile =
@@ -67,6 +72,7 @@ class _ProblemShowPageState extends State<ProblemShowPage> {
 
     final examFile = ExamFile(
       passage: widget.passage,
+      date: formattedDate,
       examName: examName,
       path: '/',
     );
@@ -96,7 +102,7 @@ class _ProblemShowPageState extends State<ProblemShowPage> {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('문제가 저장되었습니다.')),
     );
-    Navigator.pop(context);
+    Navigator.of(context).popUntil((route) => route.isFirst);
   }
 
   Future<String?> _showSaveDialog(BuildContext context) async {
@@ -164,35 +170,65 @@ class _ProblemShowPageState extends State<ProblemShowPage> {
               itemCount: widget.questions.length,
               itemBuilder: (context, index) {
                 final question = widget.questions[index];
-                return Container(
-                  margin:
-                  const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: AppTheme.mainColor),
+                return Card(
+                  elevation: 2,
+                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(8),
+                    side: const BorderSide(color: AppTheme.mainColor, width: 3),
                   ),
-                  child: Row(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Text(
-                            question.question,
-                            style: AppTheme.textTheme.bodyLarge,
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: const BoxDecoration(
+                          color: AppTheme.mainColor,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(8),
+                            topRight: Radius.circular(8),
+                          ),
+                        ),
+                        child: Text(
+                          '문제 ${index + 1}',
+                          style: AppTheme.textTheme.bodyLarge?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
-                      Column(
-                        children: question.choices.map((choice) {
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(vertical: 4),
-                            child: Text(
-                              choice,
-                              style: AppTheme.textTheme.bodyLarge,
-                            ),
-                          );
-                        }).toList(),
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text(
+                          question.question,
+                          style: AppTheme.textTheme.bodyLarge,
+                        ),
                       ),
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: List.generate(question.choices.length, (choiceIndex) {
+                            final choice = question.choices[choiceIndex];
+                            return Chip(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                side: const BorderSide(
+                                    color: AppTheme.mainColor, width: 1),
+                              ),
+                              label: Text(
+                                '${choiceIndex + 1}. $choice',
+                                style: AppTheme.textTheme.bodyLarge?.copyWith(
+                                  color: Colors.black,
+                                ),
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
                     ],
                   ),
                 );

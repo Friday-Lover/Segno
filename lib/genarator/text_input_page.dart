@@ -71,23 +71,43 @@ class _TextInputPageState extends State<TextInputPage> {
               children: [
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
-                      backgroundColor: AppTheme.mainColor,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      textStyle: AppTheme.textTheme.labelLarge,
-                      fixedSize: const Size(300,50)
+                    backgroundColor: AppTheme.mainColor,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    textStyle: AppTheme.textTheme.labelLarge,
+                    fixedSize: const Size(300, 50),
                   ),
                   child: const Text('확인'),
                   onPressed: () {
-                    Navigator.pop(context);
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) =>
-                             ProblemSelectionPage(value)),
-                    );
+                    if (value.length < 50) {
+                      showDialog(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return AlertDialog(
+                            title: const Text('입력 오류'),
+                            content: const Text('50글자 이상 입력해주세요.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: const Text('확인'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    } else {
+                      Navigator.pop(context);
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ProblemSelectionPage(value),
+                        ),
+                      );
+                    }
                   },
                 ),
               ],

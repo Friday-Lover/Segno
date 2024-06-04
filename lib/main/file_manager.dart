@@ -32,36 +32,6 @@ class Question {
   Question(this.question, this.choices, this.answer, this.comment);
 }
 
-//for testing
-
-List<Question> questions = [
-  Question('문제 1 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 1, "해설 ㅁㅁㅁㅁ"),
-  Question('문제 2!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 2, "해설 ㅁㅁㅁㅁ"),
-  Question('문제 3 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 3, "해설 ㅁㅁㅁㅁ"),
-  Question('문제 4!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 4, "해설 ㅁㅁㅁㅁ"),
-  Question('문제 5 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 5, "해설 ㅁㅁㅁㅁ"),
-  Question('문제 6!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 2, "해설 ㅁㅁㅁㅁ"),
-  Question('문제 7 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 3, "해설 ㅁㅁㅁㅁ"),
-  Question('문제 8!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 3, "해설 ㅁㅁㅁㅁ"),
-  Question('문제 9 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 1, "해설 ㅁㅁㅁㅁ"),
-  Question('문제 10!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 2, "해설 ㅁㅁㅁㅁ"),
-  Question('문제 11 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 3, "해설 ㅁㅁㅁㅁ"),
-  Question('문제 12!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!',
-      ['선택지 1', '선택지 2', '선택지 3', '선택지 4', '선택지 5'], 3, "해설 ㅁㅁㅁㅁ"),
-];
-List<int> userAnswers = [1, 2, 3, 4, 5, 1, 1, 1, 1, 1, 1, 1];
-
 class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
   List<Folder> folders = [];
   List<ExamFile> examFiles = [];
@@ -73,6 +43,36 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
     loadFolders();
     loadExamFiles();
     super.initState();
+  }
+
+  void copyQuestion(ExamFile examFile) {
+    String copiedText = '';
+
+    copiedText += "${examFile.passage}\n\n";
+
+    for (int i = 0; i < examFile.questions.length; i++) {
+      final question = examFile.questions.elementAt(i);
+      copiedText += '문제 ${i + 1}: ${question.question}\n';
+      for (int j = 0; j < question.choices.length; j++) {
+        copiedText += '${j + 1}: ${question.choices[j]}\n';
+      }
+      copiedText += '\n';
+    }
+
+    copiedText +=
+    '정답: ${examFile.questions.map((question) => question.answer).join(', ')}';
+
+    // 클립보드에 복사하는 로직 추가
+    Clipboard.setData(ClipboardData(text: copiedText)).then((_) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('문제가 클립보드에 복사되었습니다.')),
+      );
+    });
+  }
+
+  String formatDate(String date){
+    String formattedDate = '${date.substring(0, 4)}-${date.substring(4, 6)}-${date.substring(6)}';
+    return  formattedDate;
   }
 
   Future<void> loadExamFiles() async {
@@ -311,16 +311,7 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
           return Stack(children: [
             Column(
               children: [
-                Row(
-                  children: [
-                    //for testing
-                    ElevatedButton(
-                        onPressed: () {
-                          FirebaseAuth.instance.signOut();
-                        },
-                        child: const Text("logout")),
-                  ],
-                ),
+                const SizedBox(height: 20,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -502,7 +493,7 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
                                 ),
                                 const SizedBox(height: 4),
                                 Text(
-                                  '수정 일자: 2024-05-21',
+                                  '생성 일자: ${formatDate(examFile.date)}',
                                   style: TextStyle(
                                     color: Colors.grey[600],
                                     fontSize: 14,
@@ -547,26 +538,31 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
                               Padding(
                                 padding: const EdgeInsets.all(16),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
                                   children: [
                                     ElevatedButton(
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor: AppTheme.subColor,
                                         foregroundColor: Colors.white,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                         ),
-                                        textStyle: AppTheme.textTheme.labelLarge,
+                                        textStyle:
+                                            AppTheme.textTheme.labelLarge,
                                         fixedSize: const Size(200, 50),
                                       ),
                                       onPressed: () {
+                                        loadExamFiles();
                                         Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) => QuizInfo(
                                               examName: examFile.examName,
                                               passage: examFile.passage,
-                                              examResults: examFile.examResults.toList(),
+                                              examResults:
+                                                  examFile.examResults.toList(),
                                             ),
                                           ),
                                         );
@@ -578,9 +574,11 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
                                         backgroundColor: AppTheme.subColor,
                                         foregroundColor: Colors.white,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                         ),
-                                        textStyle: AppTheme.textTheme.labelLarge,
+                                        textStyle:
+                                            AppTheme.textTheme.labelLarge,
                                         fixedSize: const Size(200, 50),
                                       ),
                                       onPressed: () async {
@@ -594,14 +592,16 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
                                                 onChanged: (value) {
                                                   name = value;
                                                 },
-                                                decoration: const InputDecoration(
+                                                decoration:
+                                                    const InputDecoration(
                                                   hintText: '새로운 파일 이름을 입력하세요',
                                                 ),
                                               ),
                                               actions: [
                                                 TextButton(
                                                   onPressed: () {
-                                                    Navigator.pop(context, name);
+                                                    Navigator.pop(
+                                                        context, name);
                                                   },
                                                   child: const Text('변경'),
                                                 ),
@@ -624,12 +624,16 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
                                         backgroundColor: AppTheme.subColor,
                                         foregroundColor: Colors.white,
                                         shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(10),
+                                          borderRadius:
+                                              BorderRadius.circular(10),
                                         ),
-                                        textStyle: AppTheme.textTheme.labelLarge,
+                                        textStyle:
+                                            AppTheme.textTheme.labelLarge,
                                         fixedSize: const Size(200, 50),
                                       ),
-                                      onPressed: () {},
+                                      onPressed: () {
+                                        copyQuestion(examFile);
+                                      },
                                       child: const Text('공유 하기'),
                                     ),
                                   ],
