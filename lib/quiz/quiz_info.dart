@@ -151,6 +151,7 @@ class _QuizInfoState extends State<QuizInfo> {
                             examResult.selectedChoices
                                 .asMap()
                                 .entries
+                                // ignore: unnecessary_null_comparison
                                 .where((entry) => entry.value != null)
                                 .map((entry) =>
                                     'Q${entry.key + 1}: ${entry.value + 1}')

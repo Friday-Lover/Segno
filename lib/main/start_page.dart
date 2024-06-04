@@ -38,7 +38,7 @@ class _MainPageState extends State<MainPage> with TickerProviderStateMixin {
             ),
             actions: [
               PopupMenuButton<String>(
-                icon: Icon(Icons.person),
+                icon: const Icon(Icons.person),
                 onSelected: (value) {
                   if (value == 'logout') {
                     FirebaseAuth.instance.signOut();
