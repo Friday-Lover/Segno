@@ -59,7 +59,7 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
     }
 
     copiedText +=
-    '정답: ${examFile.questions.map((question) => question.answer).join(', ')}';
+        '정답: ${examFile.questions.map((question) => question.answer).join(', ')}';
 
     // 클립보드에 복사하는 로직 추가
     Clipboard.setData(ClipboardData(text: copiedText)).then((_) {
@@ -69,9 +69,10 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
     });
   }
 
-  String formatDate(String date){
-    String formattedDate = '${date.substring(0, 4)}-${date.substring(4, 6)}-${date.substring(6)}';
-    return  formattedDate;
+  String formatDate(String date) {
+    String formattedDate =
+        '${date.substring(0, 4)}-${date.substring(4, 6)}-${date.substring(6)}';
+    return formattedDate;
   }
 
   Future<void> loadExamFiles() async {
@@ -197,9 +198,18 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
         );
       },
     );
-
     if (shouldDelete == true) {
       await isar.writeTxn(() async {
+        for (var l in examFile.questions) {
+          await isar.questionFiles.delete(l.id);
+        }
+        final list = await isar.examResults
+            .filter()
+            .examNameEqualTo(examFile.examName)
+            .findAll();
+        for (var l in list) {
+          await isar.examResults.delete(l.id);
+        }
         await isar.examFiles.delete(examFile.id);
       });
       loadFolders();
@@ -239,6 +249,20 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
             .filter()
             .pathStartsWith('${folder.path}${folder.folderName}/')
             .findAll();
+
+        /*for (var exam in examFiles) {
+          for (var l in exam.questions) {
+            await isar.questionFiles.delete(l.id);
+          }
+          final list = await isar.examResults
+              .filter()
+              .examNameEqualTo(exam.examName)
+              .findAll();
+          for (var l in list) {
+            await isar.examResults.delete(l.id);
+          }
+        }*/
+
         await isar.examFiles
             .deleteAll(examFiles.map((file) => file.id).toList());
 
@@ -310,7 +334,9 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
           return Stack(children: [
             Column(
               children: [
-                const SizedBox(height: 20,),
+                const SizedBox(
+                  height: 20,
+                ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
@@ -610,6 +636,16 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
                                         );
                                         if (newName.isNotEmpty) {
                                           await isar.writeTxn(() async {
+                                            final examResultList = await isar
+                                                .examResults
+                                                .filter()
+                                                .examNameEqualTo(
+                                                    examFile.examName)
+                                                .findAll();
+                                            for (var exam in examResultList) {
+                                              exam.examName = newName;
+                                              await isar.examResults.put(exam);
+                                            }
                                             examFile.examName = newName;
                                             await isar.examFiles.put(examFile);
                                           });
@@ -645,46 +681,55 @@ class _LayoutBuilderWidgetState extends State<LayoutBuilderWidget> {
                     },
                   ),
                 ),
+                //should fix for release
                 if (draggedExamFile != null || draggedFolder != null)
-                  Positioned(
-                    right: 20,
-                    bottom: 20,
-                    child: DragTarget<Object>(
-                      onAcceptWithDetails:
-                          (DragTargetDetails<Object> details) async {
-                        final data = details.data;
-                        if (data is ExamFile) {
-                          await deleteExamFile(data);
-                        } else if (data is Folder) {
-                          await deleteFolder(data);
-                        }
-                        setState(() {
-                          draggedExamFile = null;
-                          draggedFolder = null;
-                        });
-                      },
-                      onWillAcceptWithDetails:
-                          (DragTargetDetails<Object> details) {
-                        final data = details.data;
-                        return data is ExamFile || data is Folder;
-                      },
-                      builder: (context, candidateData, rejectedData) {
-                        return Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            color: candidateData.isNotEmpty
-                                ? Colors.red
-                                : Colors.grey,
-                            shape: BoxShape.circle,
+                  SizedBox(
+                    width: 100,
+                    height: 100,
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          right: 20,
+                          bottom: 20,
+                          child: DragTarget<Object>(
+                            onAcceptWithDetails:
+                                (DragTargetDetails<Object> details) async {
+                              final data = details.data;
+                              if (data is ExamFile) {
+                                await deleteExamFile(data);
+                              } else if (data is Folder) {
+                                await deleteFolder(data);
+                              }
+                              setState(() {
+                                draggedExamFile = null;
+                                draggedFolder = null;
+                              });
+                            },
+                            onWillAcceptWithDetails:
+                                (DragTargetDetails<Object> details) {
+                              final data = details.data;
+                              return data is ExamFile || data is Folder;
+                            },
+                            builder: (context, candidateData, rejectedData) {
+                              return Container(
+                                width: 80,
+                                height: 80,
+                                decoration: BoxDecoration(
+                                  color: candidateData.isNotEmpty
+                                      ? Colors.red
+                                      : Colors.grey,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.delete,
+                                  color: Colors.white,
+                                  size: 40,
+                                ),
+                              );
+                            },
                           ),
-                          child: const Icon(
-                            Icons.delete,
-                            color: Colors.white,
-                            size: 40,
-                          ),
-                        );
-                      },
+                        ),
+                      ],
                     ),
                   ),
               ],

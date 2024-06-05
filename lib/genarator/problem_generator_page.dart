@@ -45,7 +45,23 @@ class _ProblemGeneratorPageState extends State<ProblemGeneratorPage> {
       responseData['question'].map<QuestionFile?>((questionData) {
         try {
           final choices = List<String>.from(questionData['choices']);
-          final answer = int.parse(questionData['answer'].toString());
+          final answerString = questionData['answer'].toString().toLowerCase();
+
+          // 정답이 문자열인 경우 숫자로 변환
+          int answer;
+          if (answerString == 'a') {
+            answer = 1;
+          } else if (answerString == 'b') {
+            answer = 2;
+          } else if (answerString == 'c') {
+            answer = 3;
+          } else if (answerString == 'd') {
+            answer = 4;
+          } else if (answerString == 'e') {
+            answer = 5;
+          } else {
+            answer = int.parse(answerString);
+          }
 
           // 선택지 셔플
           final shuffledChoices = List<String>.from(choices)..shuffle();
@@ -65,6 +81,8 @@ class _ProblemGeneratorPageState extends State<ProblemGeneratorPage> {
           return null;
         }
       }).whereType<QuestionFile>().toList();
+      // questions 리스트 셔플
+      questions.shuffle();
       return questions;
     } else {
       final errorData = json.decode(response.body) as Map<String, dynamic>;

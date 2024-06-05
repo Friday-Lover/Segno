@@ -79,11 +79,18 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
       );
 
       textPainter.layout(maxWidth: MediaQuery.of(context).size.width - 32);
-      final textOffset = textPainter.height;
+      var textOffset = textPainter.height;
+
+      final screenHeight = MediaQuery.of(context).size.height;
+      if (textOffset < screenHeight * 0.2) {
+        textOffset = 0;
+      } else {
+        textOffset = textPainter.height + screenHeight * 0.35;
+      }
 
       _scrollController.animateTo(
         textOffset,
-        duration: const Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 1000),
         curve: Curves.easeInOut,
       );
     }
@@ -430,95 +437,94 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
     final question = _examFile!.questions.elementAt(_currentQuestionIndex);
     final userAnswer = widget.examResult.selectedChoices[_currentQuestionIndex];
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(16),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: AppTheme.mainColor,
-              width: 2,
-            ),
-          ),
-          child: Text(
-            question.question,
-            style: const TextStyle(fontSize: 18),
-          ),
-        ),
-        const SizedBox(height: 8),
-        ...question.choices.asMap().entries.map((entry) {
-          final choice = entry.value;
-          final choiceIndex = entry.key;
-          final isCorrect = question.answer - 1 == choiceIndex;
-          final isSelected = userAnswer == choiceIndex;
-          return Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4.0),
-            child: Row(
-              children: [
-                Icon(
-                  isCorrect
-                      ? Icons.check_circle
-                      : isSelected
-                          ? Icons.cancel
-                          : Icons.circle,
-                  color: isCorrect
-                      ? Colors.green
-                      : isSelected
-                          ? Colors.red
-                          : Colors.grey,
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    choice,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight:
-                          isCorrect ? FontWeight.bold : FontWeight.normal,
-                      color:
-                          isSelected && !isCorrect ? Colors.red : Colors.black,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          );
-        }),
-        const SizedBox(height: 16),
-        if (question.comment.isNotEmpty)
-          Expanded(
-            child: SingleChildScrollView(
-              child: Container(
-                width: double.infinity,
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.grey[200],
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      '해설',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      question.comment,
-                      style: const TextStyle(fontSize: 16),
-                    ),
-                  ],
-                ),
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              border: Border.all(
+                color: AppTheme.mainColor,
+                width: 2,
               ),
             ),
+            child: Text(
+              question.question,
+              style: const TextStyle(fontSize: 18),
+            ),
           ),
-      ],
+          const SizedBox(height: 8),
+          ...question.choices.asMap().entries.map((entry) {
+            final choice = entry.value;
+            final choiceIndex = entry.key;
+            final isCorrect = question.answer - 1 == choiceIndex;
+            final isSelected = userAnswer == choiceIndex;
+            return Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              child: Row(
+                children: [
+                  Icon(
+                    isCorrect
+                        ? Icons.check_circle
+                        : isSelected
+                            ? Icons.cancel
+                            : Icons.circle,
+                    color: isCorrect
+                        ? Colors.green
+                        : isSelected
+                            ? Colors.red
+                            : Colors.grey,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      choice,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight:
+                            isCorrect ? FontWeight.bold : FontWeight.normal,
+                        color: isSelected && !isCorrect
+                            ? Colors.red
+                            : Colors.black,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          }),
+          const SizedBox(height: 16),
+          if (question.comment.isNotEmpty)
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    '해설',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(
+                    question.comment,
+                    style: const TextStyle(fontSize: 16),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 }

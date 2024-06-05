@@ -46,4 +46,3 @@ class MyApp extends StatelessWidget {
   }
 }
 
-//31, 33줄의 내용을 return Practice(); 로 변경

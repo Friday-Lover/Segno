@@ -76,78 +76,82 @@ class _QuizShowPageState extends State<QuizShowPage> {
         ),
         automaticallyImplyLeading: false,
       ),
-      body: Expanded(
-        flex: 8,
-        child: ListView.builder(
-          itemCount: questionTest.length,
-          itemBuilder: (context, index) {
-            final question = questionTest[index];
-            return Card(
-              elevation: 2,
-              margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-                side: const BorderSide(color: AppTheme.mainColor, width: 3),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: const BoxDecoration(
-                      color: AppTheme.mainColor,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(8),
-                        topRight: Radius.circular(8),
-                      ),
-                    ),
-                    child: Text(
-                      '문제 ${index + 1}',
-                      style: AppTheme.textTheme.bodyLarge?.copyWith(
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
+      body: Column(
+        children: [
+          Expanded(
+            flex: 8,
+            child: ListView.builder(
+              itemCount: questionTest.length,
+              itemBuilder: (context, index) {
+                final question = questionTest[index];
+                return Card(
+                  elevation: 2,
+                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                    side: const BorderSide(color: AppTheme.mainColor, width: 3),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Text(
-                      question.question,
-                      style: AppTheme.textTheme.bodyLarge,
-                    ),
-                  ),
-                  Padding(
-                    padding:
-                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children:
-                          List.generate(question.choices.length, (choiceIndex) {
-                        final choice = question.choices[choiceIndex];
-                        return Chip(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                            side: const BorderSide(
-                                color: AppTheme.mainColor, width: 1),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(16),
+                        decoration: const BoxDecoration(
+                          color: AppTheme.mainColor,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(8),
+                            topRight: Radius.circular(8),
                           ),
-                          label: Text(
-                            '${choiceIndex + 1}. $choice',
-                            style: AppTheme.textTheme.bodyLarge?.copyWith(
-                              color: Colors.black,
-                            ),
+                        ),
+                        child: Text(
+                          '문제 ${index + 1}',
+                          style: AppTheme.textTheme.bodyLarge?.copyWith(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
                           ),
-                        );
-                      }),
-                    ),
+                        ),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Text(
+                          question.question,
+                          style: AppTheme.textTheme.bodyLarge,
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                        child: Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children:
+                              List.generate(question.choices.length, (choiceIndex) {
+                            final choice = question.choices[choiceIndex];
+                            return Chip(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                                side: const BorderSide(
+                                    color: AppTheme.mainColor, width: 1),
+                              ),
+                              label: Text(
+                                '${choiceIndex + 1}. $choice',
+                                style: AppTheme.textTheme.bodyLarge?.copyWith(
+                                  color: Colors.black,
+                                ),
+                              ),
+                            );
+                          }),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ],
                   ),
-                  const SizedBox(height: 16),
-                ],
-              ),
-            );
-          },
-        ),
+                );
+              },
+            ),
+          ),
+        ],
       ),
       bottomNavigationBar: Padding(
         padding: const EdgeInsets.all(15.0),
